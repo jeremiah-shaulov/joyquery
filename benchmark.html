@@ -35,16 +35,11 @@
 		<section>
 			
 
-<script src="javascripts/joyquery.js"></script>
-<script src="javascripts/jquery-1.11.3.min.js"></script>
-<script src="javascripts/tests-runner.js"></script>
+<h2>joyquery - Benchmark</h2>
 
-##joyquery - Benchmark
+<p>This tool allows to test different kinds of selectors and compare performance among joyquery, built-in and jQuery1.</p>
 
-This tool allows to test different kinds of selectors and compare performance among joyquery, built-in and jQuery1.
-
-Please, close Firebug or another debugger when testing, or otherwise results may be distorted.
-
+<p>Please, close Firebug or another debugger when testing, or otherwise results may be distorted.</p>
 
 <div>
     Tests progress: <span id="indicator_tests_progress"></span>
@@ -54,7 +49,7 @@ Please, close Firebug or another debugger when testing, or otherwise results may
     <div id="report"></div>
 </div>
 
-Sandbox area:
+<p>Sandbox area:</p>
 
 <fieldset id="tests">
     <script>for (var i=0; i<20; i++) document.write('<div><span></span>')</script>
@@ -183,6 +178,10 @@ Sandbox area:
     <div style="clear:both"></div>
     <script>for (var i=0; i<20; i++) document.write('</div>')</script>
 </fieldset>
+
+<script src="javascripts/joyquery.js"></script>
+<script src="javascripts/jquery-1.11.3.min.js"></script>
+<script src="javascripts/tests-runner.js"></script>
 
 <script>
     var random_case_state = 0;
