@@ -1,0 +1,74 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Joyquery by jeremiah-shaulov</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/github-light.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Joyquery</h1>
+        <p>Javascript library implementing emulation of CSS selectors lookup, as document.querySelector.</p>
+
+        <p class="view"><a href="https://github.com/jeremiah-shaulov/joyquery">View the Project on GitHub <small>jeremiah-shaulov/joyquery</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/jeremiah-shaulov/joyquery/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/jeremiah-shaulov/joyquery/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/jeremiah-shaulov/joyquery">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h3>
+<a id="joyquery-library" class="anchor" href="#joyquery-library" aria-hidden="true"><span class="octicon octicon-link"></span></a>joyquery library</h3>
+
+<p>This is Javascript library that implements selector queries on DOM tree. It does the same job as embedded document.querySelector does, so it can be used in browsers that miss this modern facility (like MSIE prior version 8).</p>
+
+<p>Also joyquery enhances selectors language to provide more useful features. Joyquery allows to call Javascript functions from a selector query to perform complex tests on elements. For example:</p>
+
+<pre><code>var elements = joyquery
+(   "div &gt; p:contains-word-Hello",
+    null,
+    {   contains_word_Hello: function()
+        {   return (this.node.textContent || this.node.innerText || '').indexOf('Hello') != -1;
+        }
+    }
+).get();
+</code></pre>
+
+<p>Also supports axises like in XPATH.</p>
+
+<pre><code>var elements = joyquery("figure preceding-sibling::div").get();
+</code></pre>
+
+<p>However currently there are features that querySelector has which are not implemented. See Features.</p>
+
+<p>Joyquery is iterable.</p>
+
+<pre><code>for (var elem, it=joyquery('div &gt; a'); elem=it();)
+{    console.log(elem);
+}
+</code></pre>
+
+<p>In this case elements are not stored in array, but new element is searched and retrieved each time you call the iterator.</p>
+
+<p>The library file in minified format is 8.7KiB (gzipped 4KiB).</p>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/jeremiah-shaulov">jeremiah-shaulov</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
