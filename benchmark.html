@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="chrome=1">
-	<title>Joyquery by jeremiah-shaulov</title>
+	<title>joyquery - document.querySelector emulator - Benchmark</title>
 
 	<link rel="stylesheet" href="stylesheets/styles.css">
 	<link rel="stylesheet" href="stylesheets/github-light.css">
@@ -20,9 +20,8 @@
 
 			<p class="view"><a href="https://github.com/jeremiah-shaulov/joyquery">View the Project on GitHub <small>jeremiah-shaulov/joyquery</small></a></p>
 
-
 			<ul>
-				<li><a href="joyquery.js">Download <strong>Source</strong></a></li>
+				<li><a href="javascripts/joyquery.js">Download <strong>Source</strong></a></li>
 				<li><a href="joyquery.min.js.zip">Download <strong>Minified ZIP</strong></a></li>
 				<li><a href="joyquery.min.js.tar.gz">Download <strong>Minified TAR</strong></a></li>
 			</ul>
@@ -34,229 +33,224 @@
 			<div><a href="benchmark.html">Benchmark</a></div>
 		</header>
 		<section>
+			
 
+<script src="javascripts/joyquery.js"></script>
+<script src="javascripts/jquery-1.11.3.min.js"></script>
+<script src="javascripts/tests-runner.js"></script>
 
-<script src="joyquery.js"></script>
-<script src="jquery-1.11.3.min.js"></script>
-<script src="tests-runner.js"></script>
+##joyquery - Benchmark
 
-<h2>joyquery - Benchmark</h2>
-
-<p>
 This tool allows to test different kinds of selectors and compare performance among joyquery, built-in and jQuery1.
-</p>
 
-<p>
 Please, close Firebug or another debugger when testing, or otherwise results may be distorted.
-</p>
 
 
 <div>
-	Tests progress: <span id="indicator_tests_progress"></span>
-	Speed: <input id="tests_speed" type="range" min="0" max="100" value="100">
-	<span id="view_report"></span>
-	<button type="button" onclick="run_tests(true)">Rerun tests</button>
-	<div id="report"></div>
+    Tests progress: <span id="indicator_tests_progress"></span>
+    Speed: <input id="tests_speed" type="range" min="0" max="100" value="100">
+    <span id="view_report"></span>
+    <button type="button" onclick="run_tests(true)">Rerun tests</button>
+    <div id="report"></div>
 </div>
 
-<p>Sandbox area:</p>
+Sandbox area:
 
 <fieldset id="tests">
-	<script>for (var i=0; i<20; i++) document.write('<div><span></span>')</script>
-	<table>
-		<caption>
-			TABLE
-		</caption>
-		<tr>
-			<th>TH1.1</th>
-			<th>TH1.2</th>
-			<th>TH1.3</th>
-		</tr>
-		<tr>
-			<td>TD2.1</td>
-			<td>TD2.2</td>
-			<td>TD2.3</td>
-		</tr>
-		<tr>
-			<td>TD3.1</td>
-			<td>TD3.2</td>
-			<td>TD3.3</td>
-		</tr>
-	</table>
-	<a name="anchor">Anchor</a>
-	<a href="#anchor">Link</a>
-	<hr>
-	<center>
-		<input type="hidden" value="hidden">
-		<label>
-			INPUT
-			<input>
-		</label>
-		<br>
-		<label>
-			INPUT DISABLED
-			<input disabled>
-		</label>
-		<br>
-		<label>
-			INPUT PASSWORD
-			<input type="password" value="password">
-		</label>
-		<br>
-		<label>
-			<input type="checkbox" value="1"> CHECKBOX1
-		</label>
-		<label>
-			<input type="checkbox" value="1" checked> CHECKBOX2
-		</label>
-		<label>
-			<input type="checkbox" value="1" disabled> CHECKBOX3
-		</label>
-		<br>
-		<label>
-			<input type="radio" name="radio-1" value="1">
-			<input type="radio" name="radio-1" value="2" checked>
-			<input type="radio" name="radio-1" value="3" disabled>
-			<input type="radio" name="radio-1" value="4">
-			<input type="radio" name="radio-1" value="5">
-		</label>
-		<br>
-		<label>
-			SELECT
-			<select>
-				<optgroup label="OPTGROUP1">
-					<option value="OPTION1.1">OPTION1.1</option>
-					<option value="OPTION1.2">OPTION1.2</option>
-					<option value="OPTION1.3">OPTION1.3</option>
-				</optgroup>
-				<optgroup label="OPTGROUP2">
-					<option value="">OPTION2.1</option>
-					<option value="" selected>OPTION2.2</option>
-					<option value="" disabled>OPTION2.3</option>
-				</optgroup>
-				<optgroup label="OPTGROUP3">
-					<option value="">OPTION3.1</option>
-					<option value="">OPTION3.2</option>
-					<option value="">OPTION3.3</option>
-				</optgroup>
-			</select>
-		</label>
-		<br>
-		<label>
-			<textarea>
-				Hello
-			</textarea>
-			<textarea disabled>
-				Hello
-			</textarea>
-		</label>
-		<br>
-		<label>
-			BUTTON
-			<button type="button">BUTTON<hr>Click here</button>
-		</label>
-		<br>
-		<label>
-			INPUT BUTTON
-			<input type="button" value="Input button">
-		</label>
-		<label>
-			INPUT SUBMIT
-			<input type="submit" value="Input submit">
-		</label>
-		<label>
-			INPUT RESET
-			<input type="reset" value="Input reset">
-		</label>
-		<br>
-		<label>
-			INPUT FILE
-			<input type="file" value="Input file">
-		</label>
-		<br>
-		<label>
-			INPUT IMAGE
-			<input type="image" src="http://www.google.co.il/images/srpr/logo3w.png" style="width:5em">
-		</label>
-	</center>
-	<hr>
-	<script>
-		for (var i=1; i<=100; i++)
-		{	document.write('<div style="float:left; width:20px; height:20px; background-color:silver; border:solid black 1px">'+i+'</div>');
-		}
-	</script>
-	<div style="clear:both"></div>
-	<script>for (var i=0; i<20; i++) document.write('</div>')</script>
+    <script>for (var i=0; i<20; i++) document.write('<div><span></span>')</script>
+    <table>
+        <caption>
+            TABLE
+        </caption>
+        <tr>
+            <th>TH1.1</th>
+            <th>TH1.2</th>
+            <th>TH1.3</th>
+        </tr>
+        <tr>
+            <td>TD2.1</td>
+            <td>TD2.2</td>
+            <td>TD2.3</td>
+        </tr>
+        <tr>
+            <td>TD3.1</td>
+            <td>TD3.2</td>
+            <td>TD3.3</td>
+        </tr>
+    </table>
+    <a name="anchor">Anchor</a>
+    <a href="#anchor">Link</a>
+    <hr>
+    <center>
+        <input type="hidden" value="hidden">
+        <label>
+            INPUT
+            <input>
+        </label>
+        <br>
+        <label>
+            INPUT DISABLED
+            <input disabled>
+        </label>
+        <br>
+        <label>
+            INPUT PASSWORD
+            <input type="password" value="password">
+        </label>
+        <br>
+        <label>
+            <input type="checkbox" value="1"> CHECKBOX1
+        </label>
+        <label>
+            <input type="checkbox" value="1" checked> CHECKBOX2
+        </label>
+        <label>
+            <input type="checkbox" value="1" disabled> CHECKBOX3
+        </label>
+        <br>
+        <label>
+            <input type="radio" name="radio-1" value="1">
+            <input type="radio" name="radio-1" value="2" checked>
+            <input type="radio" name="radio-1" value="3" disabled>
+            <input type="radio" name="radio-1" value="4">
+            <input type="radio" name="radio-1" value="5">
+        </label>
+        <br>
+        <label>
+            SELECT
+            <select>
+                <optgroup label="OPTGROUP1">
+                    <option value="OPTION1.1">OPTION1.1</option>
+                    <option value="OPTION1.2">OPTION1.2</option>
+                    <option value="OPTION1.3">OPTION1.3</option>
+                </optgroup>
+                <optgroup label="OPTGROUP2">
+                    <option value="">OPTION2.1</option>
+                    <option value="" selected>OPTION2.2</option>
+                    <option value="" disabled>OPTION2.3</option>
+                </optgroup>
+                <optgroup label="OPTGROUP3">
+                    <option value="">OPTION3.1</option>
+                    <option value="">OPTION3.2</option>
+                    <option value="">OPTION3.3</option>
+                </optgroup>
+            </select>
+        </label>
+        <br>
+        <label>
+            <textarea>
+                Hello
+            </textarea>
+            <textarea disabled>
+                Hello
+            </textarea>
+        </label>
+        <br>
+        <label>
+            BUTTON
+            <button type="button">BUTTON<hr>Click here</button>
+        </label>
+        <br>
+        <label>
+            INPUT BUTTON
+            <input type="button" value="Input button">
+        </label>
+        <label>
+            INPUT SUBMIT
+            <input type="submit" value="Input submit">
+        </label>
+        <label>
+            INPUT RESET
+            <input type="reset" value="Input reset">
+        </label>
+        <br>
+        <label>
+            INPUT FILE
+            <input type="file" value="Input file">
+        </label>
+        <br>
+        <label>
+            INPUT IMAGE
+            <input type="image" src="http://www.google.co.il/images/srpr/logo3w.png" style="width:5em">
+        </label>
+    </center>
+    <hr>
+    <script>
+        for (var i=1; i<=100; i++)
+        {   document.write('<div style="float:left; width:20px; height:20px; background-color:silver; border:solid black 1px">'+i+'</div>');
+        }
+    </script>
+    <div style="clear:both"></div>
+    <script>for (var i=0; i<20; i++) document.write('</div>')</script>
 </fieldset>
 
 <script>
-var random_case_state = 0;
-function random_case(str)
-{	var str_new = '';
-	for (var i=0; i<str.length; i++)
-	{	var r = random_case_state++ % 2 == 0;
-		str_new += r ? str.charAt(i).toUpperCase() : str.charAt(i).toLowerCase();
-	}
-	return str_new;
-}
+    var random_case_state = 0;
+    function random_case(str)
+    {   var str_new = '';
+        for (var i=0; i<str.length; i++)
+        {   var r = random_case_state++ % 2 == 0;
+            str_new += r ? str.charAt(i).toUpperCase() : str.charAt(i).toLowerCase();
+        }
+        return str_new;
+    }
 
-function add_details(elem, what_cnt)
-{	for (var e=elem.firstChild; e; e=e.nextSibling)
-	{	if (e.nodeType == elem.nodeType)
-		{	var what = e.nodeName;
-			what_cnt[what] = (what_cnt[what] || 0) + 1;
-			what = random_case(what)+'-'+what_cnt[what];
-			e.setAttribute('id', what);
-			e.setAttribute('data-what', what);
-			var class_name = what+'-1';
-			for (var i=2; i<=5; i++)
-			{	class_name += ' '+what+'-'+i;
-			}
-			e.setAttribute('class', class_name);
-			add_details(e, what_cnt);
-		}
-	}
-}
+    function add_details(elem, what_cnt)
+    {   for (var e=elem.firstChild; e; e=e.nextSibling)
+        {   if (e.nodeType == elem.nodeType)
+            {   var what = e.nodeName;
+                what_cnt[what] = (what_cnt[what] || 0) + 1;
+                what = random_case(what)+'-'+what_cnt[what];
+                e.setAttribute('id', what);
+                e.setAttribute('data-what', what);
+                var class_name = what+'-1';
+                for (var i=2; i<=5; i++)
+                {   class_name += ' '+what+'-'+i;
+                }
+                e.setAttribute('class', class_name);
+                add_details(e, what_cnt);
+            }
+        }
+    }
 
-function run_tests(discard_previous)
-{	tests_runner
-	(	tests_elem,
-		6,
-		function(tests_progress, report, tests_iter_wait)
-		{	document.getElementById('indicator_tests_progress').innerHTML = Math.floor(tests_progress*100)+'%';
-			var value = 1 - document.getElementById('tests_speed').value / 100;
-			return (value*value*value) * 1000;
-		},
-		function(report)
-		{	var a = document.createElement('a');
-			a.href = 'javascript:';
-			a.innerHTML = 'View report';
-			a.onclick = function()
-			{	var report_elem = document.getElementById('report');
-				if (!report_elem.innerHTML)
-				{	report_elem.innerHTML = report.to_html();
-				}
-				else
-				{	report_elem.style.display = report_elem.style.display=='none' ? '' : 'none';
-				}
-			};
-			var view_report = document.getElementById('view_report');
-			view_report.innerHTML = '';
-			view_report.appendChild(a);
-		},
-		function(tests_progress, report)
-		{
-		},
-		discard_previous
-	);
-}
+    function run_tests(discard_previous)
+    {   tests_runner
+        (   tests_elem,
+            6,
+            function(tests_progress, report, tests_iter_wait)
+            {   document.getElementById('indicator_tests_progress').innerHTML = Math.floor(tests_progress*100)+'%';
+                var value = 1 - document.getElementById('tests_speed').value / 100;
+                return (value*value*value) * 1000;
+            },
+            function(report)
+            {   var a = document.createElement('a');
+                a.href = 'javascript:';
+                a.innerHTML = 'View report';
+                a.onclick = function()
+                {   var report_elem = document.getElementById('report');
+                    if (!report_elem.innerHTML)
+                    {   report_elem.innerHTML = report.to_html();
+                    }
+                    else
+                    {   report_elem.style.display = report_elem.style.display=='none' ? '' : 'none';
+                    }
+                };
+                var view_report = document.getElementById('view_report');
+                view_report.innerHTML = '';
+                view_report.appendChild(a);
+            },
+            function(tests_progress, report)
+            {
+            },
+            discard_previous
+        );
+    }
 
-var tests_elem = document.getElementById('tests');
-add_details(tests_elem, {});
-run_tests();
+    var tests_elem = document.getElementById('tests');
+    add_details(tests_elem, {});
+    run_tests();
 </script>
-
-			</section>
+		</section>
 		<footer>
 			<p>This project is maintained by <a href="https://github.com/jeremiah-shaulov">jeremiah-shaulov</a></p>
 			<p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>

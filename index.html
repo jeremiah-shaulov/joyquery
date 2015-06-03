@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="chrome=1">
-	<title>Joyquery by jeremiah-shaulov</title>
+	<title>joyquery - tiny enhanced document.querySelector emulator</title>
 
 	<link rel="stylesheet" href="stylesheets/styles.css">
 	<link rel="stylesheet" href="stylesheets/github-light.css">
@@ -20,9 +20,8 @@
 
 			<p class="view"><a href="https://github.com/jeremiah-shaulov/joyquery">View the Project on GitHub <small>jeremiah-shaulov/joyquery</small></a></p>
 
-
 			<ul>
-				<li><a href="joyquery.js">Download <strong>Source</strong></a></li>
+				<li><a href="javascripts/joyquery.js">Download <strong>Source</strong></a></li>
 				<li><a href="joyquery.min.js.zip">Download <strong>Minified ZIP</strong></a></li>
 				<li><a href="joyquery.min.js.tar.gz">Download <strong>Minified TAR</strong></a></li>
 			</ul>
@@ -34,72 +33,48 @@
 			<div><a href="benchmark.html">Benchmark</a></div>
 		</header>
 		<section>
-
+			
 
 <h2>joyquery library</h2>
 
-<p>
-This is Javascript library that implements selector queries on DOM tree. It does the same job as embedded document.querySelector does, so it can be used in browsers that miss this facility (like MSIE prior version 8).
-</p>
+<p>This is Javascript library that implements CSS selector queries on DOM tree. It does the same job as embedded document.querySelector does, so it can be used in browsers that miss this facility (like MSIE prior version 8).</p>
 
-<p>
-Also joyquery enhances selectors language to provide more useful features. Joyquery allows to call Javascript functions from inside selectors to perform complex tests on elements. For example:
-</p>
+<p>Also joyquery enhances selectors language to provide more useful features. Joyquery allows to call Javascript functions from inside selectors to perform complex tests on elements. For example:</p>
 
-<pre>
-var elements = joyquery
-(	"div > p:contains-word-Hello",
-	null,
-	{	contains_word_Hello: function()
-		{	return (this.node.textContent || this.node.innerText || '').indexOf('Hello') != -1;
-		}
-	}
+<pre><code>var elements = joyquery
+(   "div &gt; p:contains-word-Hello",
+    null,
+    {   contains_word_Hello: function()
+        {   return (this.node.textContent || this.node.innerText || '').indexOf('Hello') != -1;
+        }
+    }
 ).get();
-</pre>
+</code></pre>
 
-<p>
-Also supports axises like in XPATH.
-</p>
+<p>Also supports axises like in XPATH.</p>
 
-<pre>
-var elements = joyquery("figure preceding-sibling::div").get();
-</pre>
+<pre><code>var elements = joyquery("figure preceding-sibling::div").get();
+</code></pre>
 
-<p>
-However currently there are features that querySelector has which are not implemented. See <a href="features.html">Features</a>.
-</p>
+<p>However currently there are features that querySelector has which are not implemented. See [Features][features.html].</p>
 
-<p>
-Joyquery is iterable.
-</p>
+<p>Joyquery is iterable.</p>
 
-<pre>
-for (var elem, it=joyquery('div > a'); elem=it();)
-{	 console.log(elem);
+<pre><code>for (var elem, it=joyquery('div &gt; a'); elem=it();)
+{    console.log(elem);
 }
-</pre>
+</code></pre>
 
-<p>
-In this case elements are not stored in array, but new element is searched and retrieved each time you call the iterator.
-</p>
+<p>In this case elements are not stored in array, but new element is searched and retrieved each time you call the iterator.</p>
 
-<p>
-The library file in minified format is 8.7KiB (gzipped 4KiB).
-</p>
+<p>The library file in minified format is 8.7KiB (gzipped 4KiB).</p>
 
 <ul>
-	<li>
-		<a href="joyquery.js">Download source</a>
-	</li>
-	<li>
-		<a href="joyquery.min.js.zip">Download minified .zip</a>
-	</li>
-	<li>
-		<a href="joyquery.min.js.tar.gz">Download minified .tar.gz</a>
-	</li>
+<li>[Download source][http://jeremiah-shaulov.github.io/joyquery/javascripts/joyquery.js]</li>
+<li>[Download minified .zip][http://jeremiah-shaulov.github.io/joyquery/joyquery.min.js.zip]</li>
+<li>[Download minified .tar.gz][http://jeremiah-shaulov.github.io/joyquery/joyquery.min.js.tar.gz]</li>
 </ul>
-
-			</section>
+		</section>
 		<footer>
 			<p>This project is maintained by <a href="https://github.com/jeremiah-shaulov">jeremiah-shaulov</a></p>
 			<p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>

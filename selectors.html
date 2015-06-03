@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="chrome=1">
-	<title>Joyquery by jeremiah-shaulov</title>
+	<title>joyquery - document.querySelector emulator - Selectors</title>
 
 	<link rel="stylesheet" href="stylesheets/styles.css">
 	<link rel="stylesheet" href="stylesheets/github-light.css">
@@ -20,9 +20,8 @@
 
 			<p class="view"><a href="https://github.com/jeremiah-shaulov/joyquery">View the Project on GitHub <small>jeremiah-shaulov/joyquery</small></a></p>
 
-
 			<ul>
-				<li><a href="joyquery.js">Download <strong>Source</strong></a></li>
+				<li><a href="javascripts/joyquery.js">Download <strong>Source</strong></a></li>
 				<li><a href="joyquery.min.js.zip">Download <strong>Minified ZIP</strong></a></li>
 				<li><a href="joyquery.min.js.tar.gz">Download <strong>Minified TAR</strong></a></li>
 			</ul>
@@ -34,63 +33,43 @@
 			<div><a href="benchmark.html">Benchmark</a></div>
 		</header>
 		<section>
+			
 
+<p>Selectors in joyquery are regular standard CSS selectors, with some features missing, and some features added (see <a href="features.html">Features</a>).</p>
 
-<p>
-Selectors in joyquery are regular standard CSS selectors, with some features missing, and some features added (see <a href="features.html">Features</a>).
-</p>
+<p>Selector expression consists of one or more alternatives separated by commas.</p>
 
-<p>
-Selector expression consists of one or more alternatives separated by commas.
-</p>
-
-<pre>
-alt1
+<pre><code>alt1
 /* OR */
 alt1, alt2, alt3
-</pre>
+</code></pre>
 
-<p>
-Each alternative expresses path to follow to find desired elements.
-</p>
+<p>Each alternative expresses path to follow to find desired elements.</p>
 
-<pre>
-section div a
-</pre>
+<pre><code>section div a
+</code></pre>
 
-<p>
-This means, find element called "section", then inside it find "div", and then inside div find "a". So "a" elements will be returned if found.
-</p>
+<p>This means, find element called "section", then inside it find "div", and then inside div find "a". So "a" elements will be returned if found.</p>
 
-<p>
-In this case "div" can be placed anywhere inside section: as it's direct child, or as a far descendant.
-</p>
+<p>In this case "div" can be placed anywhere inside section: as it's direct child, or as a far descendant.</p>
 
-<p>
-If we want "div" to be related to "section" in some other way, we use axises.
-</p>
+<p>If we want "div" to be related to "section" in some other way, we use axises.</p>
 
 <h2><a name="joyquery-axises"></a>Axises</h2>
 
-<p>
-There are 4 axises in standard CSS: descendant, child, following-sibling and , first-following-sibling.
-</p>
+<p>There are 4 axises in standard CSS: descendant, child, following-sibling and , first-following-sibling.</p>
 
-<pre>
-section div /* descendant */
-section > div /* child */
+<pre><code>section div /* descendant */
+section &gt; div /* child */
 section ~ div /* following-sibling */
 section + div /* first-following-sibling */
-</pre>
+</code></pre>
 
-<p>
-The joyquery library introduces more axises, inspired by XPATH axises.
-</p>
+<p>The joyquery library introduces more axises, inspired by XPATH axises.</p>
 
-<pre>
-section self::*.en /* self */
+<pre><code>section self::*.en /* self */
 
-section > div /* child */
+section &gt; div /* child */
 section child::div /* also child */
 
 section div /* descendant */
@@ -113,405 +92,330 @@ section first-following-sibling::div /* also first-following-sibling */
 section preceding-sibling::* /* preceding-sibling */
 
 section first-preceding-sibling::* /* first-preceding-sibling */
-</pre>
+</code></pre>
 
 <h3>Axis: self</h3>
 
-<p>
-Specifies another conditions for the current element.
-</p>
+<p>Specifies another conditions for the current element.</p>
 
 <h3>Axis: child</h3>
 
-<p>
-Potential matches are children of current element.
-</p>
+<p>Potential matches are children of current element.</p>
 
 <h3>Axis: descendant</h3>
 
-<p>
-Potential matches are children of current element, and all elements inside them, no matter the depth.
-</p>
+<p>Potential matches are children of current element, and all elements inside them, no matter the depth.</p>
 
 <h3>Axis: descendant-or-self</h3>
 
-<p>
-Among potential matches are the current element itself, and children of the current element, and all elements inside them, no matter the depth.
-</p>
+<p>Among potential matches are the current element itself, and children of the current element, and all elements inside them, no matter the depth.</p>
 
 <h3>Axis: parent</h3>
 
-<p>
-Selects parent of current element.
-</p>
+<p>Selects parent of current element.</p>
 
 <h3>Axis: ancestor</h3>
 
-<p>
-Selects parent and all grandparents of current element.
-</p>
+<p>Selects parent and all grandparents of current element.</p>
 
 <h3>Axis: ancestor-or-self</h3>
 
-<p>
-Selects current element, it's parent and all it's grandparents.
-</p>
+<p>Selects current element, it's parent and all it's grandparents.</p>
 
 <h3>Axis: following-sibling</h3>
 
-<p>
-Selects elements belonging to the same parent as the current element, only those following the current element.
-</p>
+<p>Selects elements belonging to the same parent as the current element, only those following the current element.</p>
 
 <h3>Axis: first-following-sibling</h3>
 
-<p>
-Selects one element belonging to the same parent as the current element, which follows the current element (if any).
-</p>
+<p>Selects one element belonging to the same parent as the current element, which follows the current element (if any).</p>
 
 <h3>Axis: preceding-sibling</h3>
 
-<p>
-Selects elements belonging to the same parent as the current element, only those preceding the current element.
-</p>
+<p>Selects elements belonging to the same parent as the current element, only those preceding the current element.</p>
 
 <h3>Axis: first-preceding-sibling</h3>
 
-<p>
-Selects one element belonging to the same parent as the current element, which precedes the current element (if any).
-</p>
+<p>Selects one element belonging to the same parent as the current element, which precedes the current element (if any).</p>
 
 <h2><a name="joyquery-simple-selectors"></a>Simple selectors</h2>
 
-<p>
-Each part in complex selector is called simple selector. For example there are 3 simple selectors in "section div a".
-</p>
+<p>Each part in complex selector is called simple selector. For example there are 3 simple selectors in "section div a".</p>
 
-<p>
-Each simple selector consists of element name and conditions. To match any element name, "*" can be used, or name may be omitted. There can be any number of conditions.
-</p>
+<p>Each simple selector consists of element name and conditions. To match any element name, "*" can be used, or name may be omitted. There can be any number of conditions.</p>
 
-<pre>
-[href^="https:"][alt].link
-</pre>
+<pre><code>[href^="https:"][alt].link
+</code></pre>
 
 <h3>*</h3>
 
 <p>Selects element with any name.</p>
 
-<pre>
-*.cls
-</pre>
+<pre><code>*.cls
+</code></pre>
 
 <h3>E</h3>
 
 <p>Selects element with specified name.</p>
 
-<pre>
-div.cls
-</pre>
+<pre><code>div.cls
+</code></pre>
 
 <h3>E[foo]</h3>
 
 <p>Selects element that has attribute "foo" (possible empty).</p>
 
-<pre>
-option[selected]
-</pre>
+<pre><code>option[selected]
+</code></pre>
 
 <h3>E[foo="bar"]</h3>
 
 <p>Selects element that has attribute "foo" with value "bar".</p>
 
-<pre>
-a[target="_blank"]
-</pre>
+<pre><code>a[target="_blank"]
+</code></pre>
 
 <h3>E[foo!="bar"]</h3>
 
 <p>Selects element that either don't have attribute "foo", or have it but with value other than "bar".</p>
 
-<pre>
-a[target!="_self"]
-</pre>
+<pre><code>a[target!="_self"]
+</code></pre>
 
 <h3>E[foo~="bar"]</h3>
 
 <p>Selects element whose "foo" attribute value is a list of whitespace-separated values, one of which is exactly equal to "bar".</p>
 
-<pre>
-a[class~="external"]
-</pre>
+<pre><code>a[class~="external"]
+</code></pre>
 
-<p>
-Element &lt;a class="first external highlighted"&gt;...&lt;/a&gt; will match.
-</p>
+<p>Element &lt;a class="first external highlighted"&gt;...&lt;/a&gt; will match.</p>
 
 <h3>E[foo^="bar"]</h3>
 
 <p>Element whose "foo" attribute value begins with string "bar".</p>
 
-<pre>
-a[target^="_bla"]
-</pre>
+<pre><code>a[target^="_bla"]
+</code></pre>
 
 <h3>E[foo$="bar"]</h3>
 
 <p>Element whose "foo" attribute value ends with string "bar".</p>
 
-<pre>
-a[target$="ank"]
-</pre>
+<pre><code>a[target$="ank"]
+</code></pre>
 
 <h3>E[foo*="bar"]</h3>
 
 <p>Element whose "foo" attribute value contains string "bar".</p>
 
-<pre>
-a[target*="bla"]
-</pre>
+<pre><code>a[target*="bla"]
+</code></pre>
 
 <h3>E[foo|="en"]</h3>
 
 <p>Element whose "foo" attribute has a hyphen-separated list of values beginning with "en"</p>
 
-<pre>
-a[lang|="en"]
-</pre>
+<pre><code>a[lang|="en"]
+</code></pre>
 
 <h3>E:root</h3>
 
 <p>Matches if E is the root element, that is document.documentElement (the &lt;html&gt; tag in HTML documents)</p>
 
-<pre>
-*:root
-</pre>
+<pre><code>*:root
+</code></pre>
 
 <h3>E:nth-child(n), E:nth-child(2n+1)</h3>
 
 <p>An E element, the n-th child of its parent. N can be complex number like 2n+1. In this case will select each 2nd matching element with offset +1. In place of 2 and 1 can be any integer number.</p>
 
-<pre>
-.cls:nth-child(3)
+<pre><code>.cls:nth-child(3)
 .cls:nth-child(4n-1)
-</pre>
+</code></pre>
 
 <h3>E:nth-last-child(n), E:nth-last-child(2n+1)</h3>
 
 <p>An E element, the n-th child of its parent, counting from the last one. N can be complex number like 2n+1. In this case will select each 2nd matching element with offset +1. In place of 2 and 1 can be any integer number.</p>
 
-<pre>
-.cls:nth-last-child(3)
+<pre><code>.cls:nth-last-child(3)
 .cls:nth-last-child(4n-1)
-</pre>
+</code></pre>
 
 <h3>E:nth-of-type(n), E:nth-of-type(2n+1)</h3>
 
 <p>An E element, the n-th child of its parent, counting only elements with the same name as E. N can be complex number like 2n+1. In this case will select each 2nd matching element with offset +1. In place of 2 and 1 can be any integer number.</p>
 
-<pre>
-div:nth-of-type(3)
+<pre><code>div:nth-of-type(3)
 div:nth-of-type(4n-1)
-</pre>
+</code></pre>
 
 <h3>E:nth-last-of-type(n), E:nth-last-of-type(2n+1)</h3>
 
 <p>An E element, the n-th child of its parent, counting from the last one, counting only elements with the same name as E. N can be complex number like 2n+1. In this case will select each 2nd matching element with offset +1. In place of 2 and 1 can be any integer number.</p>
 
-<pre>
-div:nth-last-of-type(3)
+<pre><code>div:nth-last-of-type(3)
 div:nth-last-of-type(4n-1)
-</pre>
+</code></pre>
 
 <h3>E:first-child</h3>
 
 <p>An E element, first child of its parent.</p>
 
-<pre>
-div:first-child
-</pre>
+<pre><code>div:first-child
+</code></pre>
 
 <h3>E:last-child</h3>
 
 <p>An E element, last child of its parent.</p>
 
-<pre>
-div:last-child
-</pre>
+<pre><code>div:last-child
+</code></pre>
 
 <h3>E:first-of-type</h3>
 
 <p>An E element, first child name E of it's parent.</p>
 
-<pre>
-div:first-of-type
-</pre>
+<pre><code>div:first-of-type
+</code></pre>
 
 <h3>E:last-of-type</h3>
 
 <p>An E element, last child name E of it's parent.</p>
 
-<pre>
-div:last-of-type
-</pre>
+<pre><code>div:last-of-type
+</code></pre>
 
 <h3>E:only-child</h3>
 
 <p>An E element, only child of its parent.</p>
 
-<pre>
-div:only-child
-</pre>
+<pre><code>div:only-child
+</code></pre>
 
 <h3>E:only-of-type</h3>
 
 <p>An E element, only child named E of its parent.</p>
 
-<pre>
-div:only-of-type
-</pre>
+<pre><code>div:only-of-type
+</code></pre>
 
 <h3>E:empty</h3>
 
 <p>Element E that doesn't have element children, and nonempty text children. A text child is considered non-empty if it contains spaces.</p>
 
-<pre>
-div:empty
-</pre>
+<pre><code>div:empty
+</code></pre>
 
 <h3>E:focus</h3>
 
 <p>Element currently focused in document (as result of user interaction).</p>
 
-<pre>
-input:focus
-</pre>
+<pre><code>input:focus
+</code></pre>
 
 <h3>E:target</h3>
 
 <p>Element whose id attribute equals to text after "#" sign in URL of current page.</p>
 
-<pre>
-div:target
-</pre>
+<pre><code>div:target
+</code></pre>
 
 <h3>E:enabled</h3>
 
 <p>Enabled element, that means element on which interaction with user has not been disabled by doing element.disabled=true. I found that this selector works differently in Chrome and Firefox. Chrome considers &lt;a&gt; tags to be "active", while Firefox doesn't. Joyquery emulated algorythm behaves like Firefox.</p>
 
-<pre>
-*:enabled
-</pre>
+<pre><code>*:enabled
+</code></pre>
 
 <h3>E:disabled</h3>
 
 <p>Disabled element, which was disabled by doing element.disabled=true.</p>
 
-<pre>
-*:disabled
-</pre>
+<pre><code>*:disabled
+</code></pre>
 
 <h3>E:checked</h3>
 
 <p>Only &lt;input type="radio"&gt;, &lt;input type="checkbox"&gt; and &lt;option&gt; can be "checked".</p>
 
-<pre>
-*:checked
-</pre>
+<pre><code>*:checked
+</code></pre>
 
 <h3>E.class-name</h3>
 
 <p>Class. Same as E[class~="class-name"].</p>
 
-<pre>
-*.class-name
-</pre>
+<pre><code>*.class-name
+</code></pre>
 
 <h3>E#value</h3>
 
 <p>Id. Same as E[id="value"].</p>
 
-<pre>
-#header
-</pre>
+<pre><code>#header
+</code></pre>
 
 <h3>E:not(s)</h3>
 
 <p>Element that doesn't match any another selector "s". The "s" can be complex selector. It's default axis is self::*. Joyquery implementation is compatible with standard, but extends it (standard says that "s" must be simple selector). But it's not the same as jQuery implementation.</p>
 
-<pre>
-#header:not(.compact + #footer.compact)
-</pre>
+<pre><code>#header:not(.compact + #footer.compact)
+</code></pre>
 
-<p>
-Means #header that doesn't have class .compact, and is not followed by #footer.compact. The default self::* axis can be overriden:
-</p>
+<p>Means #header that doesn't have class .compact, and is not followed by #footer.compact. The default self::* axis can be overriden:</p>
 
-<pre>
-#header:not(parent::body[lang="en"])
-</pre>
+<pre><code>#header:not(parent::body[lang="en"])
+</code></pre>
 
-<p>
-Means #header, which is not a child of "body[lang="en"]".
-</p>
+<p>Means #header, which is not a child of "body[lang="en"]".</p>
 
 <h3>E:has(s)</h3>
 
 <p>Element E, which also matches selector "s". The "s" can be complex selector. It's default axis is self::*. This implementation is not the same as jQuery's one.</p>
 
-<pre>
-#header:has(* p)
-</pre>
+<pre><code>#header:has(* p)
+</code></pre>
 
-<p>
-Means #header, that contains p inside it. Without asterisk, it can also match p#header (because of the default axis).
-</p>
+<p>Means #header, that contains p inside it. Without asterisk, it can also match p#header (because of the default axis).</p>
 
 <h3>E:any(s1, s2, ...)</h3>
 
 <p>Element E, which also matches any of given selectors s1, s2, ... The selectors can be complex selector. Their default axis is self::*.</p>
 
-<pre>
-*:any(input, textarea, select, button)
-</pre>
+<pre><code>*:any(input, textarea, select, button)
+</code></pre>
 
 <h3>E:hidden</h3>
 
 <p>Element that doesn't occupy space (display:none, type="hidden", etc...).</p>
 
-<pre>
-*:hidden
-</pre>
+<pre><code>*:hidden
+</code></pre>
 
 <h3>E:input</h3>
 
 <p>Matches  &lt;input&gt;,  &lt;select&gt;,  &lt;textarea&gt; and  &lt;button&gt; elements.</p>
 
-<pre>
-*:input
-</pre>
+<pre><code>*:input
+</code></pre>
 
 <h3>:from(n)</h3>
 
 <p>From result set of current simple selector, select results starting from number n. Number n is 1-based, that is :from(1) is default for every simple selector. :from(2) means to skip first result. This is not the same as :nth-child(n) because result of simple selector can include elements belonging to different parent elements.</p>
 
-<pre>
-img:from(3)
-</pre>
+<pre><code>img:from(3)
+</code></pre>
 
 <h3>:limit(n)</h3>
 
 <p>From result set of current simple selector, select no more than n results.</p>
 
-<pre>
-img:from(3):limit(10)
-</pre>
+<pre><code>img:from(3):limit(10)
+</code></pre>
 
-<p>
-If :from(n) and/or :limit(n) specified several times the last occurance wins, so it's meaningless. In other words, joyquery's :from(n) and :limit(n) work not the same way as jQuery's :gt(n) and :lt(n) do.
-</p>
-
-			</section>
+<p>If :from(n) and/or :limit(n) specified several times the last occurance wins, so it's meaningless. In other words, joyquery's :from(n) and :limit(n) work not the same way as jQuery's :gt(n) and :lt(n) do.</p>
+		</section>
 		<footer>
 			<p>This project is maintained by <a href="https://github.com/jeremiah-shaulov">jeremiah-shaulov</a></p>
 			<p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
