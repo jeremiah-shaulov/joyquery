@@ -1,0 +1,235 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="chrome=1">
+	<title>Joyquery by jeremiah-shaulov</title>
+
+	<link rel="stylesheet" href="stylesheets/styles.css">
+	<link rel="stylesheet" href="stylesheets/github-light.css">
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+	<!--[if lt IE 9]>
+	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+</head>
+<body>
+	<div class="wrapper">
+		<header>
+			<h1>Joyquery</h1>
+			<p>Javascript library implementing emulation of CSS selectors lookup, as document.querySelector.</p>
+
+			<p class="view"><a href="https://github.com/jeremiah-shaulov/joyquery">View the Project on GitHub <small>jeremiah-shaulov/joyquery</small></a></p>
+
+
+			<ul>
+				<li><a href="joyquery.js">Download <strong>Source</strong></a></li>
+				<li><a href="joyquery.min.js.zip">Download <strong>Minified ZIP</strong></a></li>
+				<li><a href="joyquery.min.js.tar.gz">Download <strong>Minified TAR</strong></a></li>
+			</ul>
+
+			<div><a href="/">Home</a></div>
+			<div><a href="features.html">Features</a></div>
+			<div><a href="selectors.html">Selectors</a></div>
+			<div><a href="api-reference.html">API reference</a></div>
+			<div><a href="benchmark.html">Benchmark</a></div>
+		</header>
+		<section>
+
+
+<h2>joyquery - API reference</h2>
+
+<p>
+The API consists of function joyquery(), iterator function returned by joyquery(), get() function, object joyquery.FUNCTIONS, and interface for user provided callback functions callable from selectors.
+</p>
+
+<h2><a name="joyquery"></a>joyquery()</h2>
+
+<pre>
+Iterator function joyquery(string selector, DOMElement context, Object functions, boolean prefer_builtin);
+</pre>
+
+<ul>
+	<li>
+		<b>selector</b> - The only mandatory argument. This is the selector to look up.
+	</li>
+	<li>
+		<b>context</b> - If provided, will operate only on this element and its descendants. If not provided, document.documentElement (the &lt;html&gt; tag) is used.
+	</li>
+	<li>
+		<b>functions</b> - Can be object containing functions, that can be called from the selector.
+	</li>
+	<li>
+		<b>prefer_builtin</b> - Can be provided to force using or not using built-in element.querySelector (or element.querySelectorAll) function, if possible (see below).
+	</li>
+</ul>
+
+<p>
+This function returns another function, which is iterator.
+</p>
+
+<h2><a name="iterator"></a>iterator()</h2>
+
+<pre>
+DOMElement function iterator();
+</pre>
+
+<p>
+Each call to the iterator function causes to search for next element. The found element will be returned, or if there is no more results, null is returned. Subsequent calls will do nothing.
+</p>
+
+<pre>
+for (var elem, it=joyquery("a.cls"); elem=it();)
+{	console.log(elem);
+}
+</pre>
+
+<p>
+Also the iterator function has method get().
+</p>
+
+<h2><a name="get"></a>get()</h2>
+
+<pre>
+Array function get(); // [1]
+DOMElement function get(Number index); // [2]
+Array function get(index, count); // [3]
+</pre>
+
+<p>
+The [1]st form iterates over all results and returns the results as Array of DOMElement. Even if built-in querySelectorAll() was used, which returns non-array collection (in Chrome it is NodeList), get() returns Array object.
+</p>
+
+<pre>
+var all_results = joyquery("a.cls").get();
+</pre>
+
+<p>
+The [2]nd form returns single result whoose number is provided. Can return null (or undefined).
+</p>
+
+<pre>
+var elem = joyquery("a.cls").get(0);
+</pre>
+
+<p>
+The [3]rd form returns slice Array from the result set.
+</p>
+
+<pre>
+var results = joyquery("a.cls").get(10, 3);
+</pre>
+
+<h2><a name="querySelector"></a>Conditions for built-in optimization</h2>
+
+<p>
+If browser is equiped with built-in element.querySelector and element.querySelectorAll methods, they will get a try to handle the supplied selector in certain cases.
+</p>
+
+<pre>
+var all_results = joyquery("a.cls").get(); // querySelectorAll is tried
+var elem = joyquery("a.cls").get(0); // querySelector is tried
+var results = joyquery("a.cls").get(0, 1); // querySelector is tried
+</pre>
+
+<p>
+In all the other cases, including iteration without calling get(), emulation is used, except if you explicitly specify 4th argument for joyquery() function, which is called "prefer_builtin".
+</p>
+
+<p>
+To force using querySelectorAll when otherwise emulation is to be used, specify prefer_builtin true. This will speed up search, but all the found elements will be stored in array and occupy memory.
+</p>
+
+<p>
+To force not using querySelector/querySelectorAll specify prefer_builtin equal to boolean false. This may be meaningful if you want to test performance of the joyquery emulation.
+</p>
+
+<h2>Duplicate elements in result</h2>
+
+<p>
+When iterating through result of a selector that contains alternatives (commas), the same element can be returned several times.
+</p>
+
+<pre>
+for (var elem, it=joyquery("div a, div > span > a"); elem=it();)
+{	console.log(elem);
+}
+</pre>
+
+<p>
+This can happen only when result is not stored to array. When you use get() to store the result to an array, only unique elements are returned.
+</p>
+
+<pre>
+var all_results = joyquery("div a, div > span > a").get();
+</pre>
+
+<h2><a name="joyquery-functions"></a>joyquery.FUNCTIONS and Javascript callback functions</h2>
+
+<p>
+If selector contains a pseudo-class (like :contains-word-Hello) which is not implemented by joyquery library, joyquery will look for Javascript function to handle it. Dashes in the name are substituted with underscores.
+</p>
+
+<p>
+First, if "functions" argument (the 3rd argument) was provided for joyquery(), and it is an object that has such function (method), this function is called.
+</p>
+
+<p>
+If there was no function provided, the function will be looked in global joyquery.FUNCTIONS object.
+</p>
+
+<p>
+Adding methods to this global object will extend joyquery functionality.
+</p>
+
+<p>
+The extension functions are called in context of some object that has the following properties:
+</p>
+
+<ul>
+	<li><b>this.node</b> - The current DOMElement to test.</li>
+	<li><b>this.document</b> - The document to which the element belongs</li>
+	<li><b>this.window</b> - The window to which the document belongs</li>
+	<li><b>this.position</b> - Function that returns 0-based position of this element inside it's parent. Only DOMElement nodes are counted, not text or comments. If first argument to this.position() is true, will count only elements that have the same name as current element.</li>
+	<li><b>this.last</b> - Function that returns number of DOMElement nodes (not text or comments) inside current element's parent. If first argument to this.last() is true, will count only elements that have the same name as current element.</li>
+	<li><b>this.FUNCTIONS</b> - the global joyquery.FUNCTIONS of current joyquery</li>
+	<li><b>this.functions</b> - the functions passed to joyquery as 3rd argument</li>
+	<li><b>this.evaluate</b> - if some of arguments passed to this function was selector (like *:func(div.cls)), then a descriptor of this selector is passed to the function instead. This selector can be evaluated with this.evaluate(node, descriptor).get(0)</li>
+</ul>
+
+<p>
+The extension functions must return true if it considers the current element (this.node) to be matching.
+</p>
+
+<pre>
+var elements = joyquery
+(	"div > p:contains-word-Hello", null,
+	{	contains_word_Hello: function()
+		{	return (this.node.textContent || this.node.innerText || '').indexOf('Hello') != -1;
+		}
+	}
+).get();
+</pre>
+
+<p>
+This is implementation of :has(selector) handler:
+</p>
+
+<pre>
+var elements = joyquery
+(	"div:my-custom-has(* p)", null,
+	{	my_custom_has: function(selector_descriptor)
+		{	return this.evaluate(this.node, selector_descriptor).get(0);
+		}
+	}
+).get();
+</pre>
+
+			</section>
+		<footer>
+			<p>This project is maintained by <a href="https://github.com/jeremiah-shaulov">jeremiah-shaulov</a></p>
+			<p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+		</footer>
+    </div>
+	<script src="javascripts/scale.fix.js"></script>
+</body>
+</html>

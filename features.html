@@ -1,0 +1,299 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="chrome=1">
+	<title>Joyquery by jeremiah-shaulov</title>
+
+	<link rel="stylesheet" href="stylesheets/styles.css">
+	<link rel="stylesheet" href="stylesheets/github-light.css">
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+	<!--[if lt IE 9]>
+	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+</head>
+<body>
+	<div class="wrapper">
+		<header>
+			<h1>Joyquery</h1>
+			<p>Javascript library implementing emulation of CSS selectors lookup, as document.querySelector.</p>
+
+			<p class="view"><a href="https://github.com/jeremiah-shaulov/joyquery">View the Project on GitHub <small>jeremiah-shaulov/joyquery</small></a></p>
+
+
+			<ul>
+				<li><a href="joyquery.js">Download <strong>Source</strong></a></li>
+				<li><a href="joyquery.min.js.zip">Download <strong>Minified ZIP</strong></a></li>
+				<li><a href="joyquery.min.js.tar.gz">Download <strong>Minified TAR</strong></a></li>
+			</ul>
+
+			<div><a href="/">Home</a></div>
+			<div><a href="features.html">Features</a></div>
+			<div><a href="selectors.html">Selectors</a></div>
+			<div><a href="api-reference.html">API reference</a></div>
+			<div><a href="benchmark.html">Benchmark</a></div>
+		</header>
+		<section>
+
+
+<h2>joyquery - Features</h2>
+
+These are CSS features taken from <a href="http://www.w3.org/TR/css3-selectors/" target="_blank">the standard</a>.
+
+<table border="1">
+	<tr>
+		<th>Pattern</th>
+		<th>Meaning</th>
+		<th>Implemented by joyquery</th>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td>any element</td>
+		<td class="success">yes</td>
+	</tr>
+	<tr>
+		<td>E</td>
+		<td>an element of type E</td>
+		<td class="success">yes</td>
+	</tr>
+	<tr>
+		<td>E[foo]</td>
+		<td>an E element with a "foo" attribute</td>
+		<td class="success">yes</td>
+	</tr>
+	<tr>
+		<td>E[foo="bar"]</td>
+		<td>an E element whose "foo" attribute value is exactly equal to "bar"</td>
+		<td class="success">yes</td>
+	</tr>
+	<tr>
+		<td>E[foo~="bar"]</td>
+		<td>an E element whose "foo" attribute value is a list of whitespace-separated values, one of which is exactly equal to "bar"</td>
+		<td class="success">yes</td>
+	</tr>
+	<tr>
+		<td>E[foo^="bar"]</td>
+		<td>an E element whose "foo" attribute value begins exactly with the string "bar"</td>
+		<td class="success">yes</td>
+	</tr>
+	<tr>
+		<td>E[foo$="bar"]</td>
+		<td>an E element whose "foo" attribute value ends exactly with the string "bar"</td>
+		<td class="success">yes</td>
+	</tr>
+	<tr>
+		<td>E[foo*="bar"]</td>
+		<td>an E element whose "foo" attribute value contains the substring "bar"</td>
+		<td class="success">yes</td>
+	</tr>
+	<tr>
+		<td>E[foo|="en"]</td>
+		<td>an E element whose "foo" attribute has a hyphen-separated list of values beginning (from the left) with "en"</td>
+		<td class="success">yes</td>
+	</tr>
+	<tr>
+		<td>E:root</td>
+		<td>an E element, root of the document</td>
+		<td class="success">yes</td>
+	</tr>
+	<tr>
+		<td>E:nth-child(n)</td>
+		<td>an E element, the n-th child of its parent</td>
+		<td class="success">yes</td>
+	</tr>
+	<tr>
+		<td>E:nth-last-child(n)</td>
+		<td>an E element, the n-th child of its parent, counting from the last one</td>
+		<td class="success">yes</td>
+	</tr>
+	<tr>
+		<td>E:nth-of-type(n)</td>
+		<td>an E element, the n-th sibling of its type</td>
+		<td class="success">yes</td>
+	</tr>
+	<tr>
+		<td>E:nth-last-of-type(n)</td>
+		<td>an E element, the n-th sibling of its type, counting from the last one</td>
+		<td class="success">yes</td>
+	</tr>
+	<tr>
+		<td>E:first-child</td>
+		<td>an E element, first child of its parent</td>
+		<td class="success">yes</td>
+	</tr>
+	<tr>
+		<td>E:last-child</td>
+		<td>an E element, last child of its parent</td>
+		<td class="success">yes</td>
+	</tr>
+	<tr>
+		<td>E:first-of-type</td>
+		<td>an E element, first sibling of its type</td>
+		<td class="success">yes</td>
+	</tr>
+	<tr>
+		<td>E:last-of-type</td>
+		<td>an E element, last sibling of its type</td>
+		<td class="success">yes</td>
+	</tr>
+	<tr>
+		<td>E:only-child</td>
+		<td>an E element, only child of its parent</td>
+		<td class="success">yes</td>
+	</tr>
+	<tr>
+		<td>E:only-of-type</td>
+		<td>an E element, only sibling of its type</td>
+		<td class="success">yes</td>
+	</tr>
+	<tr>
+		<td>E:empty</td>
+		<td>an E element that has no children (including text nodes)</td>
+		<td class="success">yes</td>
+	</tr>
+	<tr>
+		<td>E:link</td>
+		<td>a link element</td>
+		<td class="success">yes, works like querySelector (selects also visited links)</td>
+	</tr>
+	<tr>
+		<td>E:visited<br>E:active<br>E:hover</td>
+		<td></td>
+		<td class="danger">no</td>
+	</tr>
+	<tr>
+		<td>E:focus</td>
+		<td>an E element during certain user actions</td>
+		<td class="success">yes</td>
+	</tr>
+	<tr>
+		<td>E:target</td>
+		<td>an E element being the target of the referring URI</td>
+		<td class="success">yes</td>
+	</tr>
+	<tr>
+		<td>E:lang(fr)</td>
+		<td>an element of type E in language "fr" (the document language specifies how language is determined)</td>
+		<td class="danger">no</td>
+	</tr>
+	<tr>
+		<td>E:enabled<br>E:disabled</td>
+		<td>a user interface element E which is enabled or disabled</td>
+		<td class="success">yes</td>
+	</tr>
+	<tr>
+		<td>E:checked</td>
+		<td>a user interface element E which is checked (for instance a radio-button or checkbox)</td>
+		<td class="success">yes</td>
+	</tr>
+	<tr>
+		<td>E::first-line</td>
+		<td>the first formatted line of an E element</td>
+		<td>no, doesn't select an element</td>
+	</tr>
+	<tr>
+		<td>E::first-letter</td>
+		<td>the first formatted letter of an E element</td>
+		<td>no, doesn't select an element</td>
+	</tr>
+	<tr>
+		<td>E::before</td>
+		<td>generated content before an E element</td>
+		<td>no, doesn't select an element</td>
+	</tr>
+	<tr>
+		<td>E::after</td>
+		<td>generated content after an E element</td>
+		<td>no, doesn't select an element</td>
+	</tr>
+	<tr>
+		<td>E.warning</td>
+		<td>an E element whose class is "warning" (the document language specifies how class is determined)</td>
+		<td class="success">yes</td>
+	</tr>
+	<tr>
+		<td>E#myid</td>
+		<td>an E element with ID equal to "myid"</td>
+		<td class="success">yes</td>
+	</tr>
+	<tr>
+		<td>E:not(s)</td>
+		<td>an E element that does not match simple selector s</td>
+		<td class="success">yes, extended to complex selector</td>
+	</tr>
+	<tr>
+		<td>E F</td>
+		<td>an F element descendant of an E element</td>
+		<td class="success">yes</td>
+	</tr>
+	<tr>
+		<td>E > F</td>
+		<td>an F element child of an E element</td>
+		<td class="success">yes</td>
+	</tr>
+	<tr>
+		<td>E + F</td>
+		<td>an F element immediately preceded by an E element</td>
+		<td class="success">yes</td>
+	</tr>
+	<tr>
+		<td>E ~ F</td>
+		<td>an F element preceded by an E element</td>
+		<td class="success">yes</td>
+	</tr>
+</table>
+
+These features are not found in standard, but implemented by joyquery:
+
+<table border="1">
+	<tr>
+		<th>Pattern</th>
+		<th>Meaning</th>
+	</tr>
+	<tr>
+		<td>E[foo!="bar"]</td>
+		<td>an E element that either doesn't have "foo" attribute, or has it with value not equal to "bar"</td>
+	</tr>
+	<tr>
+		<td><a href="api-reference.html#joyquery-functions">:javascript-func</a></td>
+		<td>Javascript function to test elements</td>
+	</tr>
+	<tr>
+		<td><a href="selectors.html#joyquery-axises">axis::E</a></td>
+		<td>One of the following axises like in XPATH: self, child, descendant, descendant-or-self, parent, ancestor, ancestor-or-self, following-sibling, first-following-sibling, preceding-sibling, first-preceding-sibling</td>
+	</tr>
+	<tr>
+		<td>E:has(s)</td>
+		<td>an E element that also matches selector s</td>
+	</tr>
+	<tr>
+		<td>E:any(s1, s2, ...)</td>
+		<td>an E element that also matches any of given selectors s1, s2, ...</td>
+	</tr>
+	<tr>
+		<td>E:hidden</td>
+		<td>an E element that doesn't occupy space (display:none, type="hidden", etc...)</td>
+	</tr>
+	<tr>
+		<td>E:input</td>
+		<td>an E element which is INPUT, SELECT, TEXTAREA or BUTTON</td>
+	</tr>
+	<tr>
+		<td>:from(n)</td>
+		<td>When applied to a simple selector, e.g. E.cls, selects only elements starting from number n in matched set</td>
+	</tr>
+	<tr>
+		<td>:limit(n)</td>
+		<td>When applied to a simple selector, e.g. E.cls, limits matched set to no more than n elements</td>
+	</tr>
+</table>
+
+			</section>
+		<footer>
+			<p>This project is maintained by <a href="https://github.com/jeremiah-shaulov">jeremiah-shaulov</a></p>
+			<p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+		</footer>
+    </div>
+	<script src="javascripts/scale.fix.js"></script>
+</body>
+</html>

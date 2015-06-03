@@ -3,7 +3,7 @@
 body {
   padding:50px;
   font:14px/1.5 Lato, "Helvetica Neue", Helvetica, Arial, sans-serif;
-  color:#777;
+  color:#2F2F2F;
   font-weight:300;
 }
 
@@ -40,7 +40,7 @@ a {
 
 a small {
   font-size:11px;
-  color:#777;
+  color:#2F2F2F;
   margin-top:-0.6em;
   display:block;
 }
@@ -58,7 +58,7 @@ blockquote {
 }
 
 code, pre {
-  font-family:Monaco, Bitstream Vera Sans Mono, Lucida Console, Terminal;
+  font-family:Monaco, Bitstream Vera Sans Mono, Lucida Console, Terminal, monospace;
   color:#333;
   font-size:12px;
 }
@@ -181,6 +181,14 @@ footer {
   float:left;
   position:fixed;
   bottom:50px;
+}
+
+.success
+{	color: green
+}
+
+.danger
+{	color: red
 }
 
 @media print, screen and (max-width: 960px) {
