@@ -214,6 +214,45 @@
         }
     }
 
+    function subst_tests_sel(report_elem)
+    {   for (var elem, it=joyquery('.tests-sel', report_elem); elem=it();)
+        {   var selector = elem.innerHTML;
+            var selector_js = window.JSON ? JSON.stringify(selector) : '"'+selector+'"';
+            var span = document.createElement('span');
+            span.style.position = 'relative';
+            var a = document.createElement('a');
+            a.href = 'javascript:';
+            a.innerHTML = selector;
+            a._popup = document.createElement('div');
+            a._popup.style.cssText = 'position:absolute; z-index:1; left:0; background-color:#F7F7F7; border:solid #BFBFBF 1px; box-shadow:0px 5px 10px #ADADAD; padding:0.4em';
+            a._popup.innerHTML =
+            (   '<p>To test this selector from debugger, execute this:</p>'+
+                'Native:'+
+                '<pre><code>document.getElementById("tests").querySelectorAll('+selector_js+')</code></pre>'+
+                'Emulation:'+
+                '<pre><code>joyquery('+selector_js+', document.getElementById("tests"), null, false).get()</code></pre>'+
+                'jQuery:'+
+                '<pre><code>jQuery('+selector_js+', document.getElementById("tests"))</code></pre>'
+            );
+            a.onclick = function(event)
+            {   if (event.target == this)
+                {   if (!this._popup.parentNode)
+                    {   // show
+                        this._popup.style.top = this.offsetParent+'px';
+                        this.parentNode.appendChild(this._popup);
+                    }
+                    else
+                    {   // hide
+                        this.parentNode.removeChild(this._popup);
+                    }
+                }
+            };
+            span.appendChild(a);
+            elem.innerHTML = '';
+            elem.appendChild(span);
+        }
+    }
+
     function run_tests(discard_previous)
     {   tests_runner
         (   tests_elem,
@@ -231,6 +270,7 @@
                 {   var report_elem = document.getElementById('report');
                     if (!report_elem.innerHTML)
                     {   report_elem.innerHTML = report.to_html();
+                        subst_tests_sel(report_elem);
                     }
                     else
                     {   report_elem.style.display = report_elem.style.display=='none' ? '' : 'none';

@@ -140,7 +140,7 @@ var results = joyquery("a.cls").get(0, 1); // querySelector is tried
 <li><strong>this.functions</strong> - the functions passed to joyquery as 3rd argument.</li>
 </ul>
 
-<p>The extension functions must return true if it considers the current element (this.node) to be matching.</p>
+<p>Extension function must return true if it considers the current element (this.node) to be matching.</p>
 
 <pre><code>var elements = joyquery
 (   "div &gt; p:contains-word-Hello", null,
@@ -151,7 +151,7 @@ var results = joyquery("a.cls").get(0, 1); // querySelector is tried
 ).get();
 </code></pre>
 
-<p>The extension functions can recieve arguments. If a selector passed as argument (like in :has() or :not() functions), then the extension function will recieve object that has method evaluate(node).</p>
+<p>Extension functions can recieve arguments. If a selector passed as argument (like in :has() or :not() functions), then the extension function will recieve object that has two methods: evaluate(node) and evaluate_one(node).</p>
 
 <p>This is implementation of :has(selector) handler:</p>
 
@@ -159,6 +159,17 @@ var results = joyquery("a.cls").get(0, 1); // querySelector is tried
 (   "div:my-custom-has(* p)", null,
     {   my_custom_has: function(selector)
         {   return selector.evaluate(this.node).get(0);
+        }
+    }
+).get();
+</code></pre>
+
+<p>Method evaluate_one(node) is optimized version of evaluate(node) that returns first found node.</p>
+
+<pre><code>var elements = joyquery
+(   "div:my-custom-has(* p)", null,
+    {   my_custom_has: function(selector)
+        {   return selector.evaluate_one(this.node);
         }
     }
 ).get();

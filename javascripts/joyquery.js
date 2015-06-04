@@ -59,6 +59,9 @@ joyquery =
 		{	if (window.JSON)
 			{	return JSON.stringify(value);
 			}
+			else if (typeof(value) == 'number')
+			{	return ''+value;
+			}
 			else
 			{	return '"'+(''+value).replace
 				(	/[\\'"<>&\x00-\x1F\u0080-\uFFFF]/g, function(m)
@@ -83,8 +86,17 @@ joyquery =
 			return i;
 		}
 
-		function compile(css, node, axis, functions)
-		{	var token_types = [];
+		// jQuery uses compiler cache. Why don't i?
+		var compiler_cache = {length: 0};
+
+		function compile(css, no_context_node, use_element_child, use_has_attribute)
+		{	// cache hit?
+			var css_for_cache = ((no_context_node ? 1 : 0) | (use_element_child ? 2 : 0) | (use_has_attribute ? 4 : 0)) + css;
+			if (compiler_cache[css_for_cache])
+			{	return compiler_cache[css_for_cache];
+			}
+			// cache miss
+			var token_types = [];
 			var tokens = [];
 			var i = 0;
 			css.replace
@@ -189,10 +201,9 @@ joyquery =
 					}
 					var func;
 					var priority = 0;
-					var use_element_child = node.firstElementChild!==undefined;
 					switch (oper)
 					{	case '' :
-							func = node.hasAttribute ? "n.hasAttribute("+json_encode_string(name)+")" : "n.getAttribute("+json_encode_string(name)+")!=null";
+							func = use_has_attribute ? "n.hasAttribute("+json_encode_string(name)+")" : "n.getAttribute("+json_encode_string(name)+")!=null";
 						break;
 						case '=':
 							func = "n.getAttribute("+json_encode_string(name)+")=="+json_encode_string(value);
@@ -213,14 +224,7 @@ joyquery =
 							func = "(a=n.getAttribute("+json_encode_string(name)+"))&&(b="+json_encode_string(value)+")&&(a==b||a.substr(0,"+(value.length+1)+")==b+'-')";
 						break;
 						case '~=':
-							func =
-							(	name=='class' && node.classList ?
-									"(n.classList?n.classList.contains("+json_encode_string(value)+"):(' '+("
-								: name=='class' && node.className!=null ?
-									"((' '+(n.className!=null?n.className:"
-								:
-									"((' '+("
-							)+"n.getAttribute("+json_encode_string(name)+"))+' ').indexOf("+json_encode_string(' '+value+' ')+")!=-1)";
+							func = "(n.classList?n.classList.contains("+json_encode_string(value)+"):(' '+(n.className!=null?n.className:n.getAttribute("+json_encode_string(name)+"))+' ').indexOf("+json_encode_string(' '+value+' ')+")!=-1)";
 						break;
 						case ':root':
 							func = "n==this.document.documentElement";
@@ -313,7 +317,7 @@ joyquery =
 						default:
 							var func_name = oper.substr(1).replace(/-/g, '_');
 							func_args.splice(0, 0, 'this');
-							func = 'this.'+(functions[func_name] ? 'functions.' : 'FUNCTIONS.')+func_name+'.call('+func_args.join(',')+')';
+							func = '(this.functions.'+func_name+'||this.FUNCTIONS.'+func_name+').call('+func_args.join(',')+')';
 						break;
 					}
 					conditions[priority].push(func);
@@ -444,10 +448,16 @@ joyquery =
 				}
 				return path;
 			}
-			var path = parse(axis);
+			var path = parse(no_context_node ? DESCENDANT_OR_SELF : DESCENDANT);
 			if (tokens[i])
 			{	error();
 			}
+			//
+			if (compiler_cache.length >= 5)
+			{	compiler_cache = {length: 0};
+			}
+			compiler_cache[css_for_cache] = path;
+			compiler_cache.length++;
 			return path;
 		}
 
@@ -642,7 +652,7 @@ joyquery =
 				subnode = next;
 				if (is_found)
 				{	if (!is_last_step)
-					{	var next_iter_found = select_matching(cur_path, step+1, maybe_found_node, null, functions, win, doc, 0, position, last, position_ot, last_ot, [], [], [], [], 0, false);
+					{	var next_iter_found = select_matching(cur_path, step+1, maybe_found_node, null, functions, win, doc, 0, position, last, position_ot, last_ot, positions, lasts, position_ots, last_ots, n_positions, false);
 					}
 					if (is_last_step || next_iter_found)
 					{	var next_iter = !subnode || from-1+limit <= position_range ? null : function()
@@ -664,44 +674,47 @@ joyquery =
 			}
 		}
 
+		function try_builtin(node, query, one_elem)
+		{	try
+			{	var result = one_elem ? node.querySelector(query) : node.querySelectorAll(query);
+				if (one_elem)
+				{	result = result ? [result] : [];
+				}
+//console.log('Using builtin: '+query);
+				return result;
+			}
+			catch (e)
+			{
+			}
+		}
+
 		function evaluate(path_obj_or_str, node, functions, prefer_builtin)
 		{	if (!functions)
 			{	functions = {};
 			}
 			var path;
-			if (!node)
+			var no_context_node = !node;
+			if (no_context_node)
 			{	node = document.documentElement || document.body;
 			}
 			var doc = node.ownerDocument || document;
 			var win = doc.defaultView || doc.parentWindow || window;
-			var iter, result;
+			var iter, builtin_result=null;
 			var i = -1;
-			var using_builtin = false;
 			var it = function(it_prefer_builtin, one_elem_enuogh)
 			{	if (i == -1)
 				{	var is_string = typeof(path_obj_or_str) != 'object';
-					var func = one_elem_enuogh ? 'querySelector' : 'querySelectorAll';
-					if (is_string && (it_prefer_builtin || prefer_builtin) && node[func] && prefer_builtin!==false)
-					{	try
-						{	result = node[func](path_obj_or_str);
-							if (one_elem_enuogh)
-							{	result = result ? [result] : [];
-							}
-							using_builtin = true;
-//console.log('Using builtin: '+path_obj_or_str);
-						}
-						catch (e)
-						{
-						}
+					if (is_string && (it_prefer_builtin || prefer_builtin) && prefer_builtin!==false)
+					{	builtin_result = try_builtin(node, path_obj_or_str, one_elem_enuogh);
 					}
-					if (!using_builtin)
-					{	path = is_string ? compile(path_obj_or_str, node, !node ? DESCENDANT_OR_SELF : DESCENDANT, functions) : path_obj_or_str;
+					if (!builtin_result)
+					{	path = is_string ? compile(path_obj_or_str, no_context_node, node.firstElementChild!==undefined, node.hasAttribute) : path_obj_or_str;
 					}
 					path_obj_or_str = null;
 				}
-				if (using_builtin)
+				if (builtin_result)
 				{	// using built-in
-					return result && result[++i] || (node = functions = result = null);
+					return builtin_result && builtin_result[++i] || (node = functions = builtin_result = null);
 				}
 				else
 				{	// emulating
@@ -726,7 +739,7 @@ joyquery =
 				var get_result = [];
 				var j = -at;
 				while (j<count && (elem=it(it_prefer_builtin, one_elem_enuogh)))
-				{	if (using_builtin || array_search(elem, get_result)==-1)
+				{	if (builtin_result || array_search(elem, get_result)==-1)
 					{	get_result[get_result.length] = elem;
 						j++;
 					}

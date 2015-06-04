@@ -57,7 +57,7 @@ var tests_runner =
 					{	details += 'Found: '+(entry.result.length ? entry.result.join(', ') : '(none)')+'. ';
 					}
 					var pass_html = pass==PASS_UNKNOWN ? '<td style="color:rgb(202, 131, 0)">unknown</td>' : pass==PASS_NO ? '<td style="color:red">no</td>' : pass==PASS_NO_BUT_AS_JQUERY ? '<td style="color:red">no, but as jQuery</td>' : pass==PASS_AS_JQUERY ? '<td style="color:blue">as jQuery</td>' : pass==PASS_NOT_AS_JQUERY ? '<td style="color:rgb(202, 131, 0)">not as jQuery</td>' : '<td style="color:green">yes</td>';
-					html += '<tr><td>'+selector+'</td>'+pass_html+'<td>'+details+'</td><td>'+entry.time+'</td><td>'+entry.time_b+'</td><td>'+entry.time_j+'</td></tr>';
+					html += '<tr><td class="tests-sel">'+selector+'</td>'+pass_html+'<td>'+details+'</td><td>'+entry.time+'</td><td>'+entry.time_b+'</td><td>'+entry.time_j+'</td></tr>';
 					if (entry.time!=null && entry.time_b!=null)
 					{	sum_time_e_b_e += entry.time;
 						sum_time_e_b_b += entry.time_b;
@@ -261,7 +261,7 @@ var tests_runner =
 
 		function init_test_selectors()
 		{	if (!test_selectors)
-			{	test_selectors = ['tr+tr', 'tr~tr', 'div div>div tbody *>td'];
+			{	test_selectors = ['tr~tr', 'tr+tr', 'tr+tr :input', 'div div>div tbody *>td', 'div div>div tbody *>td :input'];
 				for (var i=0; i<TEST_ELEMS.length; i++)
 				{	for (var j=0; j<TEST_CONDITIONS.length; j++)
 					{	var selector = TEST_ELEMS[i]+TEST_CONDITIONS[j];
