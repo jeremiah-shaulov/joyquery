@@ -7,8 +7,9 @@ joyquery =
 		var XML_TEXT_NODE = 3;
 		var XML_CDATA_SECTION_NODE = 4;
 
-		var TOKENIZER = /[~|^$*!]?=|::|\\:|([+\-]?\d+n(?:\s*[+\-]?\d+|\s*[+\-]\s+[+\-]?\d+)?)|((?:[\w_\-\x80-\xFF]|\\(?:[0-9A-Fa-f]{1,6}|.))+)|("[^"\\]*(?:\\[^"\\]*)*"|'[^'\\]*(?:\\[^'\\]*)*')|(\s+|\/\*[\S\s]*?\*\/)|./gi;
+		var TOKENIZER = /[~|^$*!]?=|::|([+\-]?\d+n(?:\s*[+\-]?\d+|\s*[+\-]\s+[+\-]?\d+)?)|((?:[\w_\-\x80-\xFF]|\\(?:[0-9A-Fa-f]{1,6}|.))+)|("[^"\\]*(?:\\[^"\\]*)*"|'[^'\\]*(?:\\[^'\\]*)*')|(\s+|\/\*[\S\s]*?\*\/)|./gi;
 		var COMPLEX_NUMBER_TOKENIZER = /^\s*([+\-])\s*([+\-]?\d+)$/;
+		var UNESCAPER = /\\(?:([0-9A-Fa-f]{1,6})|.)/g;
 
 		var TOKEN_TYPE_COMPLEX_NUMBER = 0;
 		var TOKEN_TYPE_IDENT = 1;
@@ -93,14 +94,10 @@ joyquery =
 					token_types.push(is_complex_number ? TOKEN_TYPE_COMPLEX_NUMBER : is_ident ? TOKEN_TYPE_IDENT : is_string ? TOKEN_TYPE_STRING : is_space ? TOKEN_TYPE_SPACE : TOKEN_TYPE_OTHER);
 				}
 			);
-			function read_ident(can_asterisk, can_ns, can_empty)
+			function read_ident(can_asterisk, can_empty)
 			{	var token = tokens[i];
 				if (can_asterisk && token=='*' || token_types[i]==TOKEN_TYPE_IDENT)
 				{	i++;
-					if (can_ns && token!='*' && i+2<token.length && tokens[i+1]=='\\:' && token_types[i+2]==TOKEN_TYPE_IDENT)
-					{	token += ':'+tokens[i+2];
-						i += 2;
-					}
 					return css_unescape(token);
 				}
 				else if (can_empty && (token=='#' || token=='.' || token=='[' || token==':'))
@@ -109,10 +106,14 @@ joyquery =
 			}
 			function read_string()
 			{	var token = tokens[i];
-				var c;
-				if (token && ((c = token.charAt(0))=='"' || c=="'" || !isNaN(parseInt(c))))
+				if (token_types[i] == TOKEN_TYPE_STRING)
 				{	i++;
-					return c=='"' || c=="'" ? eval(token) : token;
+					return css_unescape(token.substring(1, token.length-1));
+				}
+				var value = parseFloat(token);
+				if (!isNaN(value))
+				{	i++;
+					return value;
 				}
 			}
 			function read_space()
@@ -120,14 +121,32 @@ joyquery =
 				{	return tokens[i++];
 				}
 			}
+			function zpad4(text)
+			{	return '000'.substr(0, 4-text.length) + text;
+			}
 			function css_unescape(text)
-			{	return text;
+			{	if (text.indexOf('\\') == -1)
+				{	return text;
+				}
+				else
+				{	return text.replace
+					(	UNESCAPER,
+						function(match, hexa)
+						{	if (!hexa)
+							{	return match.charAt(1);
+							}
+							else
+							{	return eval('"\\u'+zpad4(hexa.length<5 ? hexa : hexa.substr(hexa.length-4))+'"');
+							}
+						}
+					);
+				}
 			}
 			function error(message)
 			{	throw new Error(message || 'Unsupported selector');
 			}
 			function parse_simple_selector(cur_path, axis)
-			{	var token = read_ident(true, true, true);
+			{	var token = read_ident(true, true);
 				if (!token)
 				{	return false;
 				}
@@ -137,7 +156,7 @@ joyquery =
 					if (axis == null)
 					{	error('Unsupported axis: '+token);
 					}
-					token = read_ident(true, true);
+					token = read_ident(true);
 					if (!token)
 					{	error();
 					}
@@ -150,7 +169,7 @@ joyquery =
 					sub: [],
 					cond: null
 				};
-				var conditions = [];
+				var conditions = [[], [], []];
 				function add_condition(name, oper, value, func_args, first_complex_number_arg)
 				{	if (name==null || value==null)
 					{	error();
@@ -169,14 +188,30 @@ joyquery =
 						value = value.toLowerCase();
 					}
 					var func;
+					var priority = 0;
+					var use_element_child = node.firstElementChild!==undefined;
 					switch (oper)
-					{	case '' : func = node.hasAttribute ? "n.hasAttribute("+json_encode_string(name)+")" : "n.getAttribute("+json_encode_string(name)+")!=null"; break;
-						case '=': func = "n.getAttribute("+json_encode_string(name)+")=="+json_encode_string(value); break;
-						case '!=': func = "(n.getAttribute("+json_encode_string(name)+")||'')!="+json_encode_string(value); break;
-						case '^=': func = "(a=n.getAttribute("+json_encode_string(name)+"))&&a.substr(0,"+(value.length)+")=="+json_encode_string(value); break;
-						case '$=': func = "(a=n.getAttribute("+json_encode_string(name)+"))&&a.substr(a.length-"+(value.length)+")=="+json_encode_string(value); break;
-						case '*=': func = "(n.getAttribute("+json_encode_string(name)+")||'').indexOf("+json_encode_string(value)+")!=-1"; break;
-						case '|=': func = "(a=n.getAttribute("+json_encode_string(name)+"))&&(b="+json_encode_string(value)+")&&(a==b||a.substr(0,"+(value.length+1)+")==b+'-')"; break;
+					{	case '' :
+							func = node.hasAttribute ? "n.hasAttribute("+json_encode_string(name)+")" : "n.getAttribute("+json_encode_string(name)+")!=null";
+						break;
+						case '=':
+							func = "n.getAttribute("+json_encode_string(name)+")=="+json_encode_string(value);
+						break;
+						case '!=':
+							func = "(n.getAttribute("+json_encode_string(name)+")||'')!="+json_encode_string(value);
+						break;
+						case '^=':
+							func = "(a=n.getAttribute("+json_encode_string(name)+"))&&a.substr(0,"+(value.length)+")=="+json_encode_string(value);
+						break;
+						case '$=':
+							func = "(a=n.getAttribute("+json_encode_string(name)+"))&&a.substr(a.length-"+(value.length)+")=="+json_encode_string(value);
+						break;
+						case '*=':
+							func = "(n.getAttribute("+json_encode_string(name)+")||'').indexOf("+json_encode_string(value)+")!=-1";
+						break;
+						case '|=':
+							func = "(a=n.getAttribute("+json_encode_string(name)+"))&&(b="+json_encode_string(value)+")&&(a==b||a.substr(0,"+(value.length+1)+")==b+'-')";
+						break;
 						case '~=':
 							func =
 							(	name=='class' && node.classList ?
@@ -187,50 +222,116 @@ joyquery =
 									"((' '+("
 							)+"n.getAttribute("+json_encode_string(name)+"))+' ').indexOf("+json_encode_string(' '+value+' ')+")!=-1)";
 						break;
-						case ':root': func = "n==this.document.documentElement"; break;
-						case ':first-child': func = node.firstElementChild!==undefined ? "!n.previousElementSibling" : "l(0,1)==0"; break;
-						case ':last-child': func = node.firstElementChild!==undefined ? "!n.nextElementSibling" : "l(0,1)==l()-1"; break;
-						case ':only-child': func = node.firstElementChild!==undefined ? "!n.previousElementSibling&&!n.nextElementSibling" : "l()==1"; break;
-						case ':nth-child': func = !first_complex_number_arg ? "l(0,1)=="+(func_arg-1) : "(l(0,1)-("+(first_complex_number_arg.real-1)+"))%"+first_complex_number_arg.imag+"==0"; break;
-						case ':nth-last-child': func = !first_complex_number_arg ? "l()-l(0,1)=="+func_arg : "(l()-l(0,1)-("+first_complex_number_arg.real+"))%"+first_complex_number_arg.imag+"==0"; break;
-						case ':first-of-type': func = "l(1,1)==0"; break;
-						case ':last-of-type': func = "l(1,1)==l(1)-1"; break;
-						case ':only-of-type': func = "l(1)==1"; break;
-						case ':nth-of-type': func = !first_complex_number_arg ? "l(1,1)=="+(func_arg-1) : "(l(1,1)-("+(first_complex_number_arg.real-1)+"))%"+first_complex_number_arg.imag+"==0"; break;
-						case ':nth-last-of-type': func = !first_complex_number_arg ? "l(1)-l(1,1)=="+func_arg : "(l(1)-l(1,1)-("+first_complex_number_arg.real+"))%"+first_complex_number_arg.imag+"==0"; break;
-						case ':not': func = "!this.evaluate(n,"+func_arg+")()"; break;
-						case ':has': func = "this.evaluate(n,"+func_arg+")()"; break;
-						case ':any': func = "(this.evaluate(n,"+func_args.join(")()||this.evaluate(n,")+")())"; break;
-						case ':focus': func = "n==this.document.activeElement"; break;
-						case ':target': func = "n.id==this.window.location.hash.substr(1)"; break;
-						case ':disabled': func = "(n.disabled&&n.nodeName!='STYLE'||(a=n.parentNode)&&a.disabled)"; break;
-						case ':enabled': func = "(b=n.disabled)!=null&&!b&&(n.value!=null||n.label!=null)"; break;
-						case ':checked': func = "(n.checked||n.selected)"; break;
-						case ':hidden': func = "!n.offsetWidth&&!n.offsetHeight"; break;
-						case ':link': func = "n.href&&n.nodeName=='A'"; break;
-						case ':input': func = "n.value!=null&&((a=n.nodeName)=='INPUT'||a=='SELECT'||a=='TEXTAREA'||a=='BUTTON')"; break;
+						case ':root':
+							func = "n==this.document.documentElement";
+						break;
+						case ':first-child':
+							func = "!n.previousElementSibling";
+							if (!use_element_child)
+							{	func = "l(0,1)==0";
+								priority = 1;
+							}
+						break;
+						case ':last-child':
+							func = "!n.nextElementSibling";
+							if (!use_element_child)
+							{	func = "l(0,1)==l()-1";
+								priority = 1;
+							}
+						break;
+						case ':only-child':
+							func = "!n.previousElementSibling&&!n.nextElementSibling";
+							if (!use_element_child)
+							{	func = "l()==1";
+								priority = 1;
+							}
+						break;
+						case ':nth-child':
+							func = !first_complex_number_arg ? "l(0,1)=="+(func_arg-1) : "(l(0,1)-("+(first_complex_number_arg.real-1)+"))%"+first_complex_number_arg.imag+"==0";
+							priority = 1;
+						break;
+						case ':nth-last-child':
+							func = !first_complex_number_arg ? "l()-l(0,1)=="+func_arg : "(l()-l(0,1)-("+first_complex_number_arg.real+"))%"+first_complex_number_arg.imag+"==0";
+							priority = 1;
+						break;
+						case ':first-of-type':
+							func = "l(1,1)==0";
+							priority = 1;
+						break;
+						case ':last-of-type':
+							func = "l(1,1)==l(1)-1";
+							priority = 1;
+						break;
+						case ':only-of-type':
+							func = "l(1)==1";
+							priority = 1;
+						break;
+						case ':nth-of-type':
+							func = !first_complex_number_arg ? "l(1,1)=="+(func_arg-1) : "(l(1,1)-("+(first_complex_number_arg.real-1)+"))%"+first_complex_number_arg.imag+"==0";
+							priority = 1;
+						break;
+						case ':nth-last-of-type':
+							func = !first_complex_number_arg ? "l(1)-l(1,1)=="+func_arg : "(l(1)-l(1,1)-("+first_complex_number_arg.real+"))%"+first_complex_number_arg.imag+"==0";
+							priority = 1;
+						break;
+						case ':not':
+							func = "!"+func_arg+".evaluate_one(n)";
+							priority = 2;
+						break;
+						case ':has':
+							func = func_arg+".evaluate_one(n)";
+							priority = 2;
+						break;
+						case ':any':
+							func = "("+func_args.join(".evaluate_one(n)||")+".evaluate_one(n))";
+							priority = 2;
+						break;
+						case ':focus':
+							func = "n==this.document.activeElement";
+						break;
+						case ':target':
+							func = "n.id==this.window.location.hash.substr(1)";
+						break;
+						case ':disabled':
+							func = "(n.disabled&&n.nodeName!='STYLE'||(a=n.parentNode)&&a.disabled)";
+						break;
+						case ':enabled':
+							func = "(b=n.disabled)!=null&&!b&&(n.value!=null||n.label!=null)";
+						break;
+						case ':checked':
+							func = "(n.checked||n.selected)";
+						break;
+						case ':hidden':
+							func = "!n.offsetWidth&&!n.offsetHeight";
+						break;
+						case ':link':
+							func = "n.href&&n.nodeName=='A'";
+						break;
+						case ':input':
+							func = "n.value!=null&&((a=n.nodeName)=='INPUT'||a=='SELECT'||a=='TEXTAREA'||a=='BUTTON')";
+						break;
 						default:
 							var func_name = oper.substr(1).replace(/-/g, '_');
 							func_args.splice(0, 0, 'this');
 							func = 'this.'+(functions[func_name] ? 'functions.' : 'FUNCTIONS.')+func_name+'.call('+func_args.join(',')+')';
 						break;
 					}
-					conditions.push(func);
+					conditions[priority].push(func);
 				}
 				while (true)
 				{	token = tokens[i];
 					if (token == '#')
 					{	i++;
-						add_condition('id', '=', read_ident(false, false));
+						add_condition('id', '=', read_ident());
 					}
 					else if (token == '.')
 					{	i++;
-						add_condition('class', '~=', read_ident(false, false));
+						add_condition('class', '~=', read_ident());
 					}
 					else if (token == '[')
 					{	i++;
 						read_space();
-						var name = read_ident(true, true);
+						var name = read_ident(true);
 						read_space();
 						token = tokens[i];
 						var oper = '';
@@ -249,18 +350,16 @@ joyquery =
 					}
 					else if (token == ':')
 					{	i++;
-						var name = read_ident(true, true);
+						var name = read_ident(true);
 						var func_args = [];
 						var first_complex_number_arg = null;
 						if (tokens[i] == '(')
 						{	while (true)
 							{	i++;
 								read_space();
-								var func_arg = tokens[i];
-								var func_arg_type = token_types[i];
-								i++;
-								if (func_arg_type == TOKEN_TYPE_COMPLEX_NUMBER)
-								{	var complex_number = func_arg.toLowerCase().split('n');
+								var func_arg;
+								if (token_types[i] == TOKEN_TYPE_COMPLEX_NUMBER)
+								{	var complex_number = tokens[i].toLowerCase().split('n');
 									var real = complex_number[1];
 									var imag = complex_number[0];
 									if (!real)
@@ -274,11 +373,17 @@ joyquery =
 									if (!func_args.length)
 									{	first_complex_number_arg = {imag:imag, real:real};
 									}
+									i++;
 								}
-								else if (func_arg_type!=TOKEN_TYPE_STRING && isNaN(parseInt(func_arg)))
-								{	i--;
-									func_arg = simple_selector.sub.length;
-									simple_selector.sub.push(parse(SELF, true));
+								else
+								{	func_arg = read_string();
+									if (func_arg != null)
+									{	func_arg = json_encode_string(func_arg);
+									}
+									else
+									{	func_arg = 'new this.E(this,'+simple_selector.sub.length+')';
+										simple_selector.sub.push(parse(SELF, true));
+									}
 								}
 								func_args.push(func_arg);
 								read_space();
@@ -296,6 +401,7 @@ joyquery =
 					{	break;
 					}
 				}
+				conditions = conditions[0].concat(conditions[1]).concat(conditions[2]);
 				if (conditions[0])
 				{	simple_selector.cond = !conditions[0] ? null : new Function('var a,b,n=this.node,l=this.last;return '+(conditions.join('&&')));
 				}
@@ -345,8 +451,23 @@ joyquery =
 			return path;
 		}
 
-		function path_subevaluate(node, n_sub_path)
-		{	return evaluate(this.s[n_sub_path], this.node, this.functions);
+		// class Evaluater
+		{	function Evaluater(ctx, h)
+			{	this.ctx = ctx;
+				this.h = h;
+			}
+			Evaluater.prototype.evaluate = function(node)
+			{	return evaluate(this.ctx.s[this.h], node, this.ctx.functions);
+			};
+			Evaluater.prototype.evaluate_one = function(node)
+			{	var path = this.ctx.s[this.h];
+				for (var i=path.length-1; i>=0; i--)
+				{	var iter = select_matching(path[i], 0, node, null, this.ctx.functions, this.ctx.window, this.ctx.document, 0, NaN, NaN, NaN, NaN, [], [], [], [], 0, false);
+					if (iter)
+					{	return iter.result;
+					}
+				}
+			};
 		}
 
 		function select_matching(cur_path, step, node, subnode, functions, win, doc, position_range, position, last, position_ot, last_ot, positions, lasts, position_ots, last_ots, n_positions, no_enter)
@@ -358,7 +479,7 @@ joyquery =
 			var cond = simple_selector.cond;
 			var sub_paths = simple_selector.sub;
 			var is_last_step = step == cur_path.length-1;
-			var ctx = {node:null, window:win, document:doc, FUNCTIONS:FUNCTIONS, functions:functions, evaluate:path_subevaluate, s:sub_paths, position:get_position, last:get_last};
+			var ctx = {node:null, window:win, document:doc, FUNCTIONS:FUNCTIONS, functions:functions, E:Evaluater, s:sub_paths, position:get_position, last:get_last};
 			if (!subnode)
 			{	subnode = axis==SELF || axis==ANCESTOR_OR_SELF ? node : axis==PARENT || axis==ANCESTOR ? node.parentNode : axis==CHILD ? node.firstChild : axis==FOLLOWING_SIBLING || axis==FIRST_FOLLOWING_SIBLING ? node.nextSibling : axis==PRECEDING_SIBLING || axis==FIRST_PRECEDING_SIBLING ? node.previousSibling : axis==DESCENDANT ? node : null;
 				position = axis==SELF || axis==DESCENDANT || axis==DESCENDANT_OR_SELF || axis==ANCESTOR_OR_SELF ? position : axis==CHILD ? 0 : axis==FOLLOWING_SIBLING || axis==FIRST_FOLLOWING_SIBLING ? position+1 : axis==PRECEDING_SIBLING || axis==FIRST_PRECEDING_SIBLING ? position-1 : NaN;
