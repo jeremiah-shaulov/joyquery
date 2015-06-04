@@ -138,7 +138,6 @@ var results = joyquery("a.cls").get(0, 1); // querySelector is tried
 <li><strong>this.last</strong> - Function that returns number of DOMElement nodes (not text or comments) inside current element's parent. If first argument to this.last() is true, will count only elements that have the same name as current element.</li>
 <li><strong>this.FUNCTIONS</strong> - the global joyquery.FUNCTIONS of current joyquery.</li>
 <li><strong>this.functions</strong> - the functions passed to joyquery as 3rd argument.</li>
-<li><strong>this.evaluate</strong> - if some of arguments passed to this function was selector (like *:func(div.cls)), then a descriptor of this selector is passed to the function instead. This selector can be evaluated with this.evaluate(node, descriptor).get(0)</li>
 </ul>
 
 <p>The extension functions must return true if it considers the current element (this.node) to be matching.</p>
@@ -152,12 +151,14 @@ var results = joyquery("a.cls").get(0, 1); // querySelector is tried
 ).get();
 </code></pre>
 
+<p>The extension functions can recieve arguments. If a selector passed as argument (like in :has() or :not() functions), then the extension function will recieve object that has method evaluate(node).</p>
+
 <p>This is implementation of :has(selector) handler:</p>
 
 <pre><code>var elements = joyquery
 (   "div:my-custom-has(* p)", null,
-    {   my_custom_has: function(selector_descriptor)
-        {   return this.evaluate(this.node, selector_descriptor).get(0);
+    {   my_custom_has: function(selector)
+        {   return selector.evaluate(this.node).get(0);
         }
     }
 ).get();

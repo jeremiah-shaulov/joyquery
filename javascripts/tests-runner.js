@@ -7,7 +7,8 @@ var tests_runner =
 			this.entries = [];
 
 			this.to_html = function()
-			{	var PASS_NO = -1;
+			{	var PASS_NO = -2;
+				var PASS_NO_BUT_AS_JQUERY = -1;
 				var PASS_UNKNOWN = 0;
 				var PASS_YES = 1;
 				var PASS_AS_JQUERY = 2;
@@ -44,18 +45,18 @@ var tests_runner =
 					}
 					else
 					{	if (entry.missing.length)
-						{	pass = entry.time_b!=null ? PASS_NO : PASS_NOT_AS_JQUERY;
+						{	pass = entry.time_b==null ? PASS_NOT_AS_JQUERY : entry.as_jquery ? PASS_NO_BUT_AS_JQUERY : PASS_NO;
 							details += 'Not found: '+entry.missing.join(', ')+'. ';
 						}
 						if (entry.extra.length)
-						{	pass = entry.time_b!=null ? PASS_NO : PASS_NOT_AS_JQUERY;
+						{	pass = entry.time_b==null ? PASS_NOT_AS_JQUERY : entry.as_jquery ? PASS_NO_BUT_AS_JQUERY : PASS_NO;
 							details += 'Extra found: '+entry.extra.join(', ')+'. ';
 						}
 					}
 					if (pass == PASS_UNKNOWN)
 					{	details += 'Found: '+(entry.result.length ? entry.result.join(', ') : '(none)')+'. ';
 					}
-					var pass_html = pass==PASS_UNKNOWN ? '<td style="color:rgb(202, 131, 0)">unknown</td>' : pass==PASS_NO ? '<td style="color:red">no</td>' : pass==PASS_AS_JQUERY ? '<td style="color:blue">as jQuery</td>' : pass==PASS_NOT_AS_JQUERY ? '<td style="color:rgb(202, 131, 0)">not as jQuery</td>' : '<td style="color:green">yes</td>';
+					var pass_html = pass==PASS_UNKNOWN ? '<td style="color:rgb(202, 131, 0)">unknown</td>' : pass==PASS_NO ? '<td style="color:red">no</td>' : pass==PASS_NO_BUT_AS_JQUERY ? '<td style="color:red">no, but as jQuery</td>' : pass==PASS_AS_JQUERY ? '<td style="color:blue">as jQuery</td>' : pass==PASS_NOT_AS_JQUERY ? '<td style="color:rgb(202, 131, 0)">not as jQuery</td>' : '<td style="color:green">yes</td>';
 					html += '<tr><td>'+selector+'</td>'+pass_html+'<td>'+details+'</td><td>'+entry.time+'</td><td>'+entry.time_b+'</td><td>'+entry.time_j+'</td></tr>';
 					if (entry.time!=null && entry.time_b!=null)
 					{	sum_time_e_b_e += entry.time;
@@ -78,7 +79,7 @@ var tests_runner =
 				return html;
 			};
 
-			var ENTRY_PROPS = ['time', 'time_b', 'time_j', 'missing', 'extra', 'result', 'error'];
+			var ENTRY_PROPS = ['time', 'time_b', 'time_j', 'as_jquery', 'missing', 'extra', 'result', 'error'];
 
 			this.__sleep = function()
 			{	var state =
@@ -211,7 +212,7 @@ var tests_runner =
 		{	return (((';'+document.cookie).match(new RegExp(';\\s*'+encodeURIComponent(name)+'=([^;]+)')) || ['', ''])[1] || '').replace(/%3B/ig, ';');
 		}*/
 
-		var TEST_ELEMS = ['', '*', 'div', 'LAbel', 'INPUT'];
+		var TEST_ELEMS = ['', '*', 'div', 'LAbel', 'INPUT', 'ns\\:custom-tag'];
 		var TEST_CONDITIONS =
 		[	'',
 			'#textarea-1',
@@ -226,6 +227,7 @@ var tests_runner =
 			'[type *=\n"tt"]',
 			'[type|="textarea"]',
 			'[type|="textarea-"]',
+			'[custom-attr = "\\23"]',
 			':root',
 			':first-child',
 			':last-child',
@@ -249,9 +251,9 @@ var tests_runner =
 			':disabled',
 			':checked',
 			':input',
-			':hidden'/*,
+			':hidden',
 			':not(* > input)',
-			':has(* > input)'*/
+			':has(* > input)'
 		];
 
 		var test_selectors = null;
@@ -403,13 +405,27 @@ var tests_runner =
 					time: time_2,
 					time_b: time_1,
 					time_j: time_3,
-					error: error
+					error: error,
+					as_jquery: null
 				};
 				report.entries.push(report_entry);
-				if (result_2 && !result_1 && !result_3)
-				{	for (var j=0; j<result_2.length; j++)
-					{	report_entry.result[j] = result_2[j].id;
+				if (result_2 && !result_1 && !result_3 || result_2 && result_3)
+				{	var ids_2 = [];
+					for (var j=0; j<result_2.length; j++)
+					{	ids_2[j] = result_2[j].id;
 					}
+				}
+				if (result_2 && result_3)
+				{	var ids_3 = [];
+					for (var j=0; j<result_3.length; j++)
+					{	ids_3[j] = result_3[j].id;
+					}
+				}
+				if (result_2 && !result_1 && !result_3)
+				{	report_entry.result = ids_2;
+				}
+				if (result_2 && result_3)
+				{	report_entry.as_jquery = ids_2.join(';') == ids_3.join(';');
 				}
 				if (result_1)
 				{	// missing compared to built-in
