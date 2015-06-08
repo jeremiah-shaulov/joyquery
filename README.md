@@ -29,7 +29,7 @@ for (var elem, it=joyquery('div > a'); elem=it();)
 
 In this case elements are not stored in array, but new element is searched and retrieved each time you call the iterator.
 
-The library file in minified format is 8.7KiB (gzipped 4KiB).
+The library file in minified format is 9.3KiB (gzipped 4.2KiB).
 
 *	[Download source][http://jeremiah-shaulov.github.io/joyquery/javascripts/joyquery.js]
 *	[Download minified .zip][http://jeremiah-shaulov.github.io/joyquery/joyquery.min.js.zip]

@@ -3,7 +3,9 @@
 
 joyquery =
 (	function()
-	{	var XML_ELEMENT_NODE = 1;
+	{	var COMPILER_CACHE_MAX = 4;
+
+		var XML_ELEMENT_NODE = 1;
 		var XML_TEXT_NODE = 3;
 		var XML_CDATA_SECTION_NODE = 4;
 
@@ -197,34 +199,39 @@ joyquery =
 					}
 					if (oper.charAt(0) != ':')
 					{	name = name.toLowerCase();
-						value = value.toLowerCase();
+						var name_js = json_encode_string(name);
+						var get_attr = "n.getAttribute("+name_js+")";
+						var use_value = oper!='~=' ? value : ' '+value+' ';
+						var value_js = "(n["+name_js+"]?"+json_encode_string(use_value.toLowerCase())+":"+json_encode_string(use_value)+")";
 					}
 					var func;
 					var priority = 0;
 					switch (oper)
 					{	case '' :
-							func = use_has_attribute ? "n.hasAttribute("+json_encode_string(name)+")" : "n.getAttribute("+json_encode_string(name)+")!=null";
+							func = use_has_attribute ? "n.hasAttribute("+name_js+")" : "n.getAttribute("+name_js+")!=null";
 						break;
 						case '=':
-							func = "n.getAttribute("+json_encode_string(name)+")=="+json_encode_string(value);
+							func = get_attr+"=="+value_js;
 						break;
 						case '!=':
-							func = "(n.getAttribute("+json_encode_string(name)+")||'')!="+json_encode_string(value);
+							func = "("+get_attr+"||'')!="+value_js;
 						break;
 						case '^=':
-							func = "(a=n.getAttribute("+json_encode_string(name)+"))&&a.substr(0,"+(value.length)+")=="+json_encode_string(value);
+							func = "(a="+get_attr+")&&a.substr(0,"+(value.length)+")=="+value_js;
 						break;
 						case '$=':
-							func = "(a=n.getAttribute("+json_encode_string(name)+"))&&a.substr(a.length-"+(value.length)+")=="+json_encode_string(value);
+							func = "(a="+get_attr+")&&a.substr(a.length-"+(value.length)+")=="+value_js;
 						break;
 						case '*=':
-							func = "(n.getAttribute("+json_encode_string(name)+")||'').indexOf("+json_encode_string(value)+")!=-1";
+							func = "(a="+get_attr+")&&a.indexOf("+value_js+")!=-1";
 						break;
 						case '|=':
-							func = "(a=n.getAttribute("+json_encode_string(name)+"))&&(b="+json_encode_string(value)+")&&(a==b||a.substr(0,"+(value.length+1)+")==b+'-')";
+							func = "(a="+get_attr+")&&(b="+value_js+")&&(a==b||a.substr(0,"+(value.length+1)+")==b+'-')";
 						break;
 						case '~=':
-							func = "(n.classList?n.classList.contains("+json_encode_string(value)+"):(' '+(n.className!=null?n.className:n.getAttribute("+json_encode_string(name)+"))+' ').indexOf("+json_encode_string(' '+value+' ')+")!=-1)";
+							get_attr = "(' '+("+(name!='class' ? "" : "n.className!=null?n.className:")+get_attr+")+' ')";
+							var try_class_list = name!='class' ? "" : "n.classList?n.classList.contains("+json_encode_string(value)+"):";
+							func = "("+try_class_list+get_attr+".indexOf("+(name!='class' ? value_js : json_encode_string(use_value))+")!=-1)";
 						break;
 						case ':root':
 							func = "n==this.document.documentElement";
@@ -453,7 +460,7 @@ joyquery =
 			{	error();
 			}
 			//
-			if (compiler_cache.length >= 5)
+			if (compiler_cache.length >= COMPILER_CACHE_MAX)
 			{	compiler_cache = {length: 0};
 			}
 			compiler_cache[css_for_cache] = path;
@@ -490,13 +497,13 @@ joyquery =
 			var sub_paths = simple_selector.sub;
 			var is_last_step = step == cur_path.length-1;
 			var ctx = {node:null, window:win, document:doc, FUNCTIONS:FUNCTIONS, functions:functions, E:Evaluater, s:sub_paths, position:get_position, last:get_last};
+			var use_element_child = node && node.firstElementChild!==undefined;
 			if (!subnode)
-			{	subnode = axis==SELF || axis==ANCESTOR_OR_SELF ? node : axis==PARENT || axis==ANCESTOR ? node.parentNode : axis==CHILD ? node.firstChild : axis==FOLLOWING_SIBLING || axis==FIRST_FOLLOWING_SIBLING ? node.nextSibling : axis==PRECEDING_SIBLING || axis==FIRST_PRECEDING_SIBLING ? node.previousSibling : axis==DESCENDANT ? node : null;
+			{	subnode = axis==SELF || axis==ANCESTOR_OR_SELF ? node : axis==PARENT || axis==ANCESTOR ? node.parentNode : axis==CHILD ? node.firstChild : axis==FOLLOWING_SIBLING || axis==FIRST_FOLLOWING_SIBLING ? (use_element_child ? node.nextElementSibling : node.nextSibling) : axis==PRECEDING_SIBLING || axis==FIRST_PRECEDING_SIBLING ? (use_element_child ? node.previousElementSibling : node.previousSibling) : axis==DESCENDANT ? node : null;
 				position = axis==SELF || axis==DESCENDANT || axis==DESCENDANT_OR_SELF || axis==ANCESTOR_OR_SELF ? position : axis==CHILD ? 0 : axis==FOLLOWING_SIBLING || axis==FIRST_FOLLOWING_SIBLING ? position+1 : axis==PRECEDING_SIBLING || axis==FIRST_PRECEDING_SIBLING ? position-1 : NaN;
 				position_ot = axis==SELF || axis==DESCENDANT || axis==DESCENDANT_OR_SELF ? position_ot : axis==CHILD ? (name?0:NaN) : NaN;
 			}
 			var inc_position = axis==PRECEDING_SIBLING ? -1 : +1;
-			var use_element_child = node && node.firstElementChild!==undefined;
 			function get_last(is_ot, is_p)
 			{	var value = is_ot ? (is_p ? position_ot : last_ot) : (is_p ? position : last);
 				if (isNaN(value))
