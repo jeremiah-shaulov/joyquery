@@ -318,6 +318,9 @@ joyquery =
 						case ':link':
 							func = "n.href&&n.nodeName=='A'";
 						break;
+						case ':visited':
+							func = "0";
+						break;
 						case ':input':
 							func = "n.value!=null&&((a=n.nodeName)=='INPUT'||a=='SELECT'||a=='TEXTAREA'||a=='BUTTON')";
 						break;
@@ -390,6 +393,9 @@ joyquery =
 								{	func_arg = read_string();
 									if (func_arg != null)
 									{	func_arg = json_encode_string(func_arg);
+									}
+									else if (token_types[i]==TOKEN_TYPE_IDENT && FUNCTIONS[name+'.raw_argument'])
+									{	func_arg = json_encode_string(tokens[i++]);
 									}
 									else
 									{	func_arg = 'new this.E(this,'+simple_selector.sub.length+')';
