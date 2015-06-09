@@ -64,10 +64,13 @@
         'onmousedown',
         function(evt)
         {   active_last_target = (evt || window.event || {}).target;
-            function done()
-            {   active_last_target = null;
-                onmouseup();
-                onmousemove();
+            function done(evt)
+            {   var true_evt = evt || window.event || {};
+                if (true_evt.type!='mousemove' || true_evt.target!=active_last_target)
+                {   active_last_target = null;
+                    onmouseup();
+                    onmousemove();
+                }
             }
             var onmouseup = add_event(document, 'onmouseup', done);
             var onmousemove = add_event(document, 'onmousemove', done);
