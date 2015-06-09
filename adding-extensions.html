@@ -1,0 +1,214 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="chrome=1">
+	<title>joyquery - document.querySelector emulator - Adding extensions</title>
+
+	<link rel="stylesheet" href="stylesheets/styles.css">
+	<link rel="stylesheet" href="stylesheets/github-light.css">
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+	<!--[if lt IE 9]>
+	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+</head>
+<body>
+	<div class="wrapper">
+		<header>
+			<h1>Joyquery</h1>
+			<p>Javascript library implementing emulation of CSS selectors lookup, as document.querySelector.</p>
+
+			<p class="view"><a href="https://github.com/jeremiah-shaulov/joyquery">View the Project on GitHub <small>jeremiah-shaulov/joyquery</small></a></p>
+
+			<ul>
+				<li><a href="javascripts/joyquery.js">Download <strong>Source</strong></a></li>
+				<li><a href="joyquery.min.js.zip">Download <strong>Minified ZIP</strong></a></li>
+				<li><a href="joyquery.min.js.tar.gz">Download <strong>Minified TAR</strong></a></li>
+			</ul>
+
+			<div><a href="./">Home</a></div>
+			<div><a href="features.html">Features</a></div>
+			<div><a href="selectors.html">Selectors</a></div>
+			<div><a href="api-reference.html">API reference</a></div>
+			<div><a href="adding-extensions.html">Adding extensions</a></div>
+			<div><a href="benchmark.html">Benchmark</a></div>
+		</header>
+		<section>
+			
+
+<p>Joyquery allows to add support for pseudo classes, which are not supported. There are 3 standard classes that joyquery doesn't support by default: :active, :hover and :lang(). On this page i'll show how to add them. Also you are free to add your custom pseudo classes.</p>
+
+<h2><a name="active"></a>:active</h2>
+
+<pre><code>if (!joyquery.FUNCTIONS.active)
+{   function add_event(node, onwhat, callback, capture)
+    {   if (node.addEventListener)
+        {   if (onwhat.substr(0, 2) == 'on') onwhat = onwhat.substring(2);
+            node.addEventListener(onwhat, callback, !!capture);
+            return function()
+            {   node.removeEventListener(onwhat, callback, !!capture);
+            };
+        }
+        else
+        {   node.attachEvent(onwhat, callback);
+            return function()
+            {   node.detachEvent(onwhat, callback);
+            };
+        }
+    }
+
+    var active_last_target = null;
+
+    add_event
+    (   document,
+        'onmousedown',
+        function(evt)
+        {   active_last_target = (evt || window.event || {}).target;
+            function done()
+            {   active_last_target = null;
+                onmouseup();
+                onmousemove();
+            }
+            var onmouseup = add_event(document, 'onmouseup', done);
+            var onmousemove = add_event(document, 'onmousemove', done);
+        }
+    );
+
+    joyquery.FUNCTIONS.active = function()
+    {   var node = this.node;
+        var last = active_last_target;
+        while (last &amp;&amp; last!=node)
+        {   last = last.parentNode;
+        }
+        return last;
+    };
+}
+</code></pre>
+
+<h2><a name="hover"></a>:hover</h2>
+
+<pre><code>if (!joyquery.FUNCTIONS.hover)
+{   function add_event(node, onwhat, callback, capture)
+    {   if (node.addEventListener)
+        {   if (onwhat.substr(0, 2) == 'on') onwhat = onwhat.substring(2);
+            node.addEventListener(onwhat, callback, !!capture);
+            return function()
+            {   node.removeEventListener(onwhat, callback, !!capture);
+            };
+        }
+        else
+        {   node.attachEvent(onwhat, callback);
+            return function()
+            {   node.detachEvent(onwhat, callback);
+            };
+        }
+    }
+
+    var hover_last_target = null;
+
+    add_event
+    (   document,
+        'onmouseover',
+        function(evt)
+        {   hover_last_target = (evt || window.event || {}).target;
+        }
+    );
+    add_event
+    (   document,
+        'onmouseout',
+        function(evt)
+        {   var target = (evt || window.event || {}).target;
+            if (target==document.body || target==document.documentElement)
+            {   hover_last_target = null;
+            }
+        }
+    );
+
+    joyquery.FUNCTIONS.hover = function()
+    {   var node = this.node;
+        var last = hover_last_target;
+        while (last &amp;&amp; last!=node)
+        {   last = last.parentNode;
+        }
+        return last;
+    };
+}
+</code></pre>
+
+<h2><a name="lang"></a>:lang()</h2>
+
+<pre><code>if (!joyquery.FUNCTIONS.lang)
+{   var langs_checked = {};
+    var langs_checked_length = 0;
+    var document_language = null;
+
+    joyquery.FUNCTIONS['lang.raw_argument'] = true;
+
+    joyquery.FUNCTIONS.lang = function(code)
+    {   var value;
+        var node = this.node;
+        while (!value &amp;&amp; node)
+        {   value = node.lang;
+            node = node.parentNode;
+        }
+        if (!value)
+        {   // lang attribute is not specified
+            // is document in this language?
+            if (!(code in langs_checked))
+            {   try
+                {   if (langs_checked_length &gt;= 128)
+                    {   langs_checked = {};
+                        langs_checked_length = 0;
+                    }
+                    langs_checked[code] = !!document.querySelector('html:lang('+code+')');
+                    langs_checked_length++;
+                }
+                catch (e)
+                {
+                }
+            }
+            if (code in langs_checked)
+            {   return langs_checked[code]; // document.querySelector succeeded
+            }
+            // does document have a meta tag
+            if (document_language == null)
+            {   try
+                {   var metas = document.getElementsByTagName('meta');
+                    for (var i=metas.length-1; i&gt;=0; i--)
+                    {   if (metas[i].httpEquiv.toLowerCase() == 'content-language')
+                        {   document_language = metas[i].content;
+                            break;
+                        }
+                    }
+                }
+                catch (e)
+                {
+                }
+                if (!document_language)
+                {   document_language = navigator.language || navigator.userLanguage ||  '';
+                }
+            }
+            value = document_language;
+        }
+        value = value.replace('_', '-').toLowerCase();
+        code = code.toLowerCase();
+        return value==code || value.substr(0, code.length+1)==code+'-';
+    };
+}
+</code></pre>
+
+<p>However, some browsers don't allow to determine default document language. If document.querySelector('html:lang('+code+')') fails, this function looks for a meta tag like this:</p>
+
+<pre><code>&lt;meta http-equiv="Content-Language" content="he-IL"/&gt;
+</code></pre>
+
+<p>If such tag also not exists, the system language (navigator.language) is assumed to be the language of the document.</p>
+		</section>
+		<footer>
+			<p>This project is maintained by <a href="https://github.com/jeremiah-shaulov">jeremiah-shaulov</a></p>
+			<p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+		</footer>
+    </div>
+	<script src="javascripts/scale.fix.js"></script>
+</body>
+</html>

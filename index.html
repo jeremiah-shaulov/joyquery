@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="chrome=1">
-	<title>joyquery - tiny enhanced document.querySelector emulator</title>
+	<title>joyquery - tiny Javascript library that emulates document.querySelector</title>
 
 	<link rel="stylesheet" href="stylesheets/styles.css">
 	<link rel="stylesheet" href="stylesheets/github-light.css">
@@ -30,6 +30,7 @@
 			<div><a href="features.html">Features</a></div>
 			<div><a href="selectors.html">Selectors</a></div>
 			<div><a href="api-reference.html">API reference</a></div>
+			<div><a href="adding-extensions.html">Adding extensions</a></div>
 			<div><a href="benchmark.html">Benchmark</a></div>
 		</header>
 		<section>
@@ -37,9 +38,11 @@
 
 <h2>joyquery library</h2>
 
-<p>This is Javascript library that implements CSS selector queries on DOM tree. It does the same job as embedded document.querySelector does, so it can be used in browsers that miss this facility (like MSIE prior version 8).</p>
+<p>Joyquery is Javascript library that allows to perform CSS selector queries on DOM tree. It does the same job as embedded document.querySelector does, so it can be used as fallback in browsers that miss this facility (like MSIE prior version 8).</p>
 
-<p>Also joyquery enhances selectors language to provide more useful features. Joyquery allows to call Javascript functions from inside selectors to perform complex tests on elements. For example:</p>
+<p>Also joyquery enhances selectors language to provide more features.</p>
+
+<p>Joyquery allows to call Javascript functions from inside selectors to perform complex tests on elements. For example:</p>
 
 <pre><code>var elements = joyquery
 (   "div &gt; p:contains-word-Hello",
@@ -51,12 +54,16 @@
 ).get();
 </code></pre>
 
-<p>Also supports axises like in XPATH.</p>
+<p>Joyquery supports axises like in XPATH.</p>
 
 <pre><code>var elements = joyquery("figure preceding-sibling::div").get();
 </code></pre>
 
-<p>However currently there are features that querySelector has which are not implemented. See <a href="features.html">Features</a>.</p>
+<p>Joyquery supports all the standard selectors. However some of them are implemented in extensions, not in the library. See <a href="features.html">Features</a>.</p>
+
+<p>Joyquery is small library: the library file in minified format is 9.4KiB (gzipped 4.3KiB). It is also relatively fast (near same speed as jQuery on selectors that document.querySelector can't handle).</p>
+
+<p>Joyquery runs on all respectable browsers, plus MSIE 6 or higher. When browser has embedded document.querySelector, and it is able to handle given selector, the built-in function is utilized.</p>
 
 <p>Joyquery is iterable.</p>
 
@@ -66,8 +73,6 @@
 </code></pre>
 
 <p>In this case elements are not stored in array, but new element is searched and retrieved each time you call the iterator.</p>
-
-<p>The library file in minified format is 9.3KiB (gzipped 4.2KiB).</p>
 
 <ul>
 <li><a href="javascripts/joyquery.js">Download source</a></li>

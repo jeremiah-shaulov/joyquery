@@ -30,6 +30,7 @@
 			<div><a href="features.html">Features</a></div>
 			<div><a href="selectors.html">Selectors</a></div>
 			<div><a href="api-reference.html">API reference</a></div>
+			<div><a href="adding-extensions.html">Adding extensions</a></div>
 			<div><a href="benchmark.html">Benchmark</a></div>
 		</header>
 		<section>
@@ -152,13 +153,27 @@
     </tr>
     <tr>
         <td>E:link</td>
-        <td>a link element</td>
+        <td>a link element (&lt;a&gt; with href attribute)</td>
         <td class="success">yes, works like querySelector (selects also visited links)</td>
     </tr>
     <tr>
-        <td>E:visited<br>E:active<br>E:hover</td>
-        <td></td>
-        <td class="danger">no</td>
+        <td>E:visited</td>
+        <td>a visited link</td>
+        <td class="success">yes, works like querySelector (selects nothing)</td>
+    </tr>
+    <tr>
+        <td>E:active</td>
+        <td>a link being clicked</td>
+        <td class="danger">
+            not in library, <a href="adding-extensions.html#active">See how to add it</a>
+        </td>
+    </tr>
+    <tr>
+        <td>E:hover</td>
+        <td>a link under mouse</td>
+        <td class="danger">
+            not in library, <a href="adding-extensions.html#hover">See how to add it</a>
+        </td>
     </tr>
     <tr>
         <td>E:focus</td>
@@ -173,7 +188,9 @@
     <tr>
         <td>E:lang(fr)</td>
         <td>an element of type E in language "fr" (the document language specifies how language is determined)</td>
-        <td class="danger">no</td>
+        <td class="danger">
+            not in library, <a href="adding-extensions.html#lang">See how to add it</a>
+        </td>
     </tr>
     <tr>
         <td>E:enabled<br>E:disabled</td>
