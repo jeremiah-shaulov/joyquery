@@ -737,7 +737,7 @@ joyquery =
 				}
 				if (builtin_result)
 				{	// using built-in
-					return builtin_result && builtin_result[++i] || (node = functions = builtin_result = null);
+					return builtin_result[++i] || (node = functions = builtin_result = null);
 				}
 				else
 				{	// emulating
