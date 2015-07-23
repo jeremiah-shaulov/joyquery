@@ -2,7 +2,7 @@
 
 ##joyquery library
 
-Joyquery is Javascript library that allows to perform CSS selector queries on DOM tree. It does the same job as embedded document.querySelector does, so it can be used as fallback in browsers that miss this facility (like MSIE prior version 8).
+Joyquery is Javascript library that allows to perform CSS selector queries on DOM tree. It does the same job as embedded document.querySelector does, so it can be used as alternative in browsers that miss this function (like Microsoft Internet Explorer prior version 8).
 
 Also joyquery enhances selectors language to provide more features.
 
