@@ -69,7 +69,7 @@ var tests_runner =
 				}
 				html +=
 				(		'<tr>'+
-							'<td colspan="6">Time taken when both emulation and build-in succeeded: emulation: <b>'+sum_time_e_b_e+'msec</b>, build-in: <b>'+sum_time_e_b_b+'msec</b>'+
+							'<td colspan="6">Time taken when both emulation and built-in succeeded: emulation: <b>'+sum_time_e_b_e+'msec</b>, built-in: <b>'+sum_time_e_b_b+'msec</b>'+
 						'</tr>'+
 						'<tr>'+
 							'<td colspan="6">Time taken when both emulation and jQuery succeeded, but built-in failed, so jQuery didn\'t optimize: emulation: <b>'+sum_time_e_j_e+'msec</b>, jQuery: <b>'+sum_time_e_j_j+'msec</b>'+
