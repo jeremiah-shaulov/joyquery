@@ -177,7 +177,7 @@ joyquery =
 				}
 				var simple_selector =
 				{	name: token=='*' ? '' : token.toUpperCase(),
-					axis:axis,
+					axis: axis,
 					from: 1,
 					limit: 0x7FFFFFFF,
 					sub: [],
@@ -420,7 +420,7 @@ joyquery =
 				}
 				conditions = conditions[0].concat(conditions[1]).concat(conditions[2]);
 				if (conditions[0])
-				{	simple_selector.cond = !conditions[0] ? null : new Function('var a,b,n=this.node,l=this.last;return '+(conditions.join('&&')));
+				{	simple_selector.cond = new Function('var a,b,n=this.node,l=this.last;return '+(conditions.join('&&')));
 				}
 				cur_path.push(simple_selector);
 				return true;
@@ -474,15 +474,15 @@ joyquery =
 			return path;
 		}
 
-		// class Evaluater
-		{	function Evaluater(ctx, h)
+		// class Evaluator
+		{	function Evaluator(ctx, h)
 			{	this.ctx = ctx;
 				this.h = h;
 			}
-			Evaluater.prototype.evaluate = function(node)
+			Evaluator.prototype.evaluate = function(node)
 			{	return evaluate(this.ctx.s[this.h], node, this.ctx.functions);
 			};
-			Evaluater.prototype.evaluate_one = function(node)
+			Evaluator.prototype.evaluate_one = function(node)
 			{	var path = this.ctx.s[this.h];
 				for (var i=path.length-1; i>=0; i--)
 				{	var iter = select_matching(path[i], 0, node, null, this.ctx.functions, this.ctx.window, this.ctx.document, 0, NaN, NaN, NaN, NaN, [], [], [], [], 0, false);
@@ -502,7 +502,17 @@ joyquery =
 			var cond = simple_selector.cond;
 			var sub_paths = simple_selector.sub;
 			var is_last_step = step == cur_path.length-1;
-			var ctx = {node:null, window:win, document:doc, FUNCTIONS:FUNCTIONS, functions:functions, E:Evaluater, s:sub_paths, position:get_position, last:get_last};
+			var ctx =
+			{	node: null,
+				window: win,
+				document: doc,
+				FUNCTIONS: FUNCTIONS,
+				functions: functions,
+				E: Evaluator,
+				s: sub_paths,
+				position: get_position,
+				last: get_last
+			};
 			var use_element_child = node && node.firstElementChild!==undefined;
 			if (!subnode)
 			{	subnode = axis==SELF || axis==ANCESTOR_OR_SELF ? node : axis==PARENT || axis==ANCESTOR ? node.parentNode : axis==CHILD ? node.firstChild : axis==FOLLOWING_SIBLING || axis==FIRST_FOLLOWING_SIBLING ? (use_element_child ? node.nextElementSibling : node.nextSibling) : axis==PRECEDING_SIBLING || axis==FIRST_PRECEDING_SIBLING ? (use_element_child ? node.previousElementSibling : node.previousSibling) : axis==DESCENDANT ? node : null;
