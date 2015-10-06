@@ -1,0 +1,131 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="chrome=1">
+	<title>joyquery - document.querySelector emulator - PHP (server side) version</title>
+
+	<link rel="stylesheet" href="stylesheets/styles.css">
+	<link rel="stylesheet" href="stylesheets/github-light.css">
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+	<!--[if lt IE 9]>
+	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+</head>
+<body>
+	<div class="wrapper">
+		<header>
+			<h1>Joyquery</h1>
+			<p>Javascript library implementing emulation of CSS selectors lookup, as document.querySelector.</p>
+
+			<p class="view"><a href="https://github.com/jeremiah-shaulov/joyquery">View the Project on GitHub <small>jeremiah-shaulov/joyquery</small></a></p>
+
+			<ul>
+				<li><a href="javascripts/joyquery.js">Download <strong>Source</strong></a></li>
+				<li><a href="joyquery.min.js.zip">Download <strong>Minified ZIP</strong></a></li>
+				<li><a href="joyquery.min.js.tar.gz">Download <strong>Minified TAR</strong></a></li>
+			</ul>
+
+			<div><a href="./">Home</a></div>
+			<div><a href="features.html">Features</a></div>
+			<div><a href="selectors.html">Selectors</a></div>
+			<div><a href="api-reference.html">API reference</a></div>
+			<div><a href="adding-extensions.html">Adding extensions</a></div>
+			<div><a href="benchmark.html">Benchmark</a></div>
+
+			<br>
+
+			<div>
+				See also:<br>
+				<a href="joyquery-for-php.html">Joyquery for PHP</a>
+			</div>
+		</header>
+		<section>
+			
+
+<p>This is PHP version of the joyquery library. It allows to make CSS queries on server side.</p>
+
+<ul>
+<li><a href="JoyQuery.class.php.zip">Download ZIP</a></li>
+<li><a href="JoyQuery.class.php.tar.gz">Download TAR</a></li>
+</ul>
+
+<p>This version has the same feature set as <a href="./">regular joyquery</a> except features that depend on browser. The following features are not included:</p>
+
+<ol>
+<li>:focus</li>
+<li>:hidden</li>
+</ol>
+
+<p>Furthermore the following features respect only the source HTML/XML markup, but not the actual state:</p>
+
+<ol>
+<li>:disabled</li>
+<li>:enabled</li>
+<li>:checked</li>
+</ol>
+
+<p>In other words, :checked will find only elements that have "checked" or "selected" attributes, but not elements that are checked by default according to browser rules.</p>
+
+<p>The library contains class called JoyQuery with only one public static function:</p>
+
+<pre><code>public static function evaluate($css_selector, DOMNode $node, array $functions=null)
+</code></pre>
+
+<p>In case of error this function throws Exception. If no error, it returns DOMNodeList object.</p>
+
+<p>Here is usage example:</p>
+
+<pre><code>require_once 'JoyQuery.class.php';
+
+$doc = new DOMDocument;
+$doc-&gt;loadHTML('&lt;Div class=d hello=world&gt;&lt;span&gt;Hello&lt;/span&gt;&lt;/Div&gt;');
+//or: $doc-&gt;loadXML('&lt;Div class="d" hello="world"&gt;&lt;span&gt;Hello&lt;/span&gt;&lt;/Div&gt;');
+
+$elements = JoyQuery::evaluate('.d span:last-child', $doc);
+foreach ($elements as $elem)
+{   echo $doc-&gt;saveXml($elem-&gt;cloneNode()), "\n\n";
+}
+</code></pre>
+
+<p>Here is how to provide custom function:</p>
+
+<pre><code>require_once 'JoyQuery.class.php';
+
+$doc = new DOMDocument;
+$doc-&gt;loadHTML('&lt;Div class=d hello=world&gt;&lt;span&gt;Hello&lt;/span&gt;&lt;/Div&gt;');
+
+$elements = JoyQuery::evaluate
+(   '*:not(html):not(body):contains-word("Hello")',
+    $doc,
+    array
+    (   'contains_word' =&gt; function(DOMElement $node, $word)
+        {   return strpos($node-&gt;textContent, $word) !== false;
+        }
+    )
+);
+foreach ($elements as $elem)
+{   echo $doc-&gt;saveXml($elem-&gt;cloneNode()), "\n\n";
+}
+</code></pre>
+
+<p>Adding extension:</p>
+
+<pre><code>JoyQuery::$FUNCTIONS['my_custom_empty'] = function(DOMElement $node)
+{   for ($e=$node-&gt;firstChild; $e; $e=$e-&gt;nextSibling)
+    {   if ($e-&gt;nodeType!=XML_TEXT_NODE &amp;&amp; $e-&gt;nodeType!=XML_CDATA_SECTION_NODE or $e-&gt;length&gt;0)
+        {   return false;
+        }
+    }
+    return true;
+};
+</code></pre>
+		</section>
+		<footer>
+			<p>This project is maintained by <a href="https://github.com/jeremiah-shaulov">jeremiah-shaulov</a></p>
+			<p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+		</footer>
+    </div>
+	<script src="javascripts/scale.fix.js"></script>
+</body>
+</html>
