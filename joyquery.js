@@ -328,6 +328,7 @@ joyquery =
 							var func_name = oper.substr(1).replace(/-/g, '_');
 							func_args.splice(0, 0, 'this');
 							func = '(this.functions.'+func_name+'||this.FUNCTIONS.'+func_name+').call('+func_args.join(',')+')';
+							priority = 1;
 						break;
 					}
 					conditions[priority].push(func);
