@@ -8,6 +8,8 @@ joyquery =
 		var XML_ELEMENT_NODE = 1;
 		var XML_TEXT_NODE = 3;
 		var XML_CDATA_SECTION_NODE = 4;
+		var XML_DOCUMENT_NODE = 9;
+		var XML_HTML_DOCUMENT_NODE = 13;
 
 		var TOKENIZER = /[~|^$*!]?=|::|([+\-]?\d+n(?:\s*[+\-]?\d+|\s*[+\-]\s+[+\-]?\d+)?)|((?:[\w_\-\x80-\xFF]|\\(?:[0-9A-Fa-f]{1,6}|.))+)|("[^"\\]*(?:\\[\S\s][^"\\]*)*"|'[^'\\]*(?:\\[\S\s][^'\\]*)*')|(\s+|\/\*[\S\s]*?\*\/)|./gi;
 		var COMPLEX_NUMBER_TOKENIZER = /^\s*([+\-])\s*([+\-]?\d+)$/;
@@ -91,9 +93,9 @@ joyquery =
 		// jQuery uses compiler cache. Why don't i?
 		var compiler_cache = {length: 0};
 
-		function compile(css, no_context_node, use_element_child, use_has_attribute)
+		function compile(css, no_context_node, use_element_child, use_has_attribute, is_xml)
 		{	// cache hit?
-			var css_for_cache = ((no_context_node ? 1 : 0) | (use_element_child ? 2 : 0) | (use_has_attribute ? 4 : 0)) + css;
+			var css_for_cache = ((no_context_node ? 1 : 0) | (use_element_child ? 2 : 0) | (use_has_attribute ? 4 : 0) | (is_xml ? 8 : 0)) + css;
 			if (compiler_cache[css_for_cache])
 			{	return compiler_cache[css_for_cache];
 			}
@@ -176,7 +178,7 @@ joyquery =
 					}
 				}
 				var simple_selector =
-				{	name: token=='*' ? '' : token.toUpperCase(),
+				{	name: token=='*' ? '' : is_xml ? token : token.toUpperCase(),
 					axis: axis,
 					from: 1,
 					limit: 0x7FFFFFFF,
@@ -721,7 +723,7 @@ joyquery =
 			if (no_context_node)
 			{	node = document.documentElement || document.body;
 			}
-			var doc = node.ownerDocument || document;
+			var doc = node.nodeType==XML_DOCUMENT_NODE || node.nodeType==XML_HTML_DOCUMENT_NODE ? node : node.ownerDocument || document;
 			var win = doc.defaultView || doc.parentWindow || window;
 			var iter, builtin_result=null;
 			var i = -1;
@@ -732,7 +734,8 @@ joyquery =
 					{	builtin_result = try_builtin(node, path_obj_or_str, one_elem_enuogh);
 					}
 					if (!builtin_result)
-					{	path = is_string ? compile(path_obj_or_str, no_context_node, node.firstElementChild!==undefined, node.hasAttribute) : path_obj_or_str;
+					{	var is_xml = !doc.body || (doc.contentType || '').indexOf('/xml')!=-1;
+						path = is_string ? compile(path_obj_or_str, no_context_node, node.firstElementChild!==undefined, node.hasAttribute, is_xml) : path_obj_or_str;
 					}
 					path_obj_or_str = null;
 				}
