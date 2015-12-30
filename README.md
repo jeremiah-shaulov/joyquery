@@ -23,7 +23,7 @@ Joyquery supports axises like in XPATH.
 
 Joyquery supports all the standard selectors. However some of them are implemented in extensions, not in the library. See <a href="features.html">Features</a>.
 
-Joyquery is small library: the library file in minified format is 9.5KiB (gzipped 4.3KiB). It is also relatively fast (near same speed as jQuery on selectors that document.querySelector can't handle).
+Joyquery is small library: the library file in minified format is 9.7KiB (gzipped 4.3KiB). It is also relatively fast (near same speed as jQuery on selectors that document.querySelector can't handle).
 
 Joyquery runs on all respectable browsers, plus MSIE 6 or higher. When browser has embedded document.querySelector, and it is able to handle given selector, the built-in function is utilized.
 
