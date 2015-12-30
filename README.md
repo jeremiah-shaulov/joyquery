@@ -21,7 +21,7 @@ Joyquery supports axises like in XPATH.
 
 	var elements = joyquery("figure preceding-sibling::div").get();
 
-Joyquery supports all the standard selectors. However some of them are implemented in extensions, not in the library. See <a href="features.html">Features</a>.
+Joyquery supports all the standard selectors. However some of them are implemented in extensions, not in the library. See <a href="http://jeremiah-shaulov.github.io/joyquery/features.html">Features</a>.
 
 Joyquery is small library: the library file in minified format is 9.7KiB (gzipped 4.3KiB). It is also relatively fast (near same speed as jQuery on selectors that document.querySelector can't handle).
 
