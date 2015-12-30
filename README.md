@@ -21,9 +21,9 @@ Joyquery supports axises like in XPATH.
 
 	var elements = joyquery("figure preceding-sibling::div").get();
 
-Joyquery supports all the standard selectors. However some of them are implemented in extensions, not in the library. See [Features][http://jeremiah-shaulov.github.io/joyquery/features.html].
+Joyquery supports all the standard selectors. However some of them are implemented in extensions, not in the library. See <a href="features.html">Features</a>.
 
-Joyquery is small library: the library file in minified format is 9.4KiB (gzipped 4.3KiB). It is also relatively fast (near same speed as jQuery on selectors that document.querySelector can't handle).
+Joyquery is small library: the library file in minified format is 9.5KiB (gzipped 4.3KiB). It is also relatively fast (near same speed as jQuery on selectors that document.querySelector can't handle).
 
 Joyquery runs on all respectable browsers, plus MSIE 6 or higher. When browser has embedded document.querySelector, and it is able to handle given selector, the built-in function is utilized.
 
@@ -35,6 +35,6 @@ Joyquery is iterable.
 
 In this case elements are not stored in array, but new element is searched and retrieved each time you call the iterator.
 
-*	[Download source][http://jeremiah-shaulov.github.io/joyquery/javascripts/joyquery.js]
-*	[Download minified .zip][http://jeremiah-shaulov.github.io/joyquery/joyquery.min.js.zip]
-*	[Download minified .tar.gz][http://jeremiah-shaulov.github.io/joyquery/joyquery.min.js.tar.gz]
+*	<a href="javascripts/joyquery.js">Download source</a>
+*	<a href="joyquery.min.js.zip">Download minified .zip</a>
+*	<a href="joyquery.min.js.tar.gz">Download minified .tar.gz</a>

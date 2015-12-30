@@ -203,7 +203,7 @@ joyquery =
 					{	name = name.toLowerCase();
 						var name_js = json_encode_string(name);
 						var get_attr = "n.getAttribute("+name_js+")";
-						var use_value = oper!='~=' ? value : ' '+value+' ';
+						var use_value = oper!='~=' ? value+'' : ' '+value+' ';
 						var value_js = "(n["+name_js+"]?"+json_encode_string(use_value.toLowerCase())+":"+json_encode_string(use_value)+")";
 					}
 					var func;
