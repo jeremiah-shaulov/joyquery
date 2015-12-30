@@ -35,6 +35,6 @@ Joyquery is iterable.
 
 In this case elements are not stored in array, but new element is searched and retrieved each time you call the iterator.
 
-*	<a href="javascripts/joyquery.js">Download source</a>
-*	<a href="joyquery.min.js.zip">Download minified .zip</a>
-*	<a href="joyquery.min.js.tar.gz">Download minified .tar.gz</a>
+*	<a href="http://jeremiah-shaulov.github.io/joyquery/javascripts/joyquery.js">Download source</a>
+*	<a href="http://jeremiah-shaulov.github.io/joyquery/joyquery.min.js.zip">Download minified .zip</a>
+*	<a href="http://jeremiah-shaulov.github.io/joyquery/joyquery.min.js.tar.gz">Download minified .tar.gz</a>
