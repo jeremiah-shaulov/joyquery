@@ -3,9 +3,7 @@
 
 joyquery =
 (	function()
-	{	var COMPILER_CACHE_MAX = 4;
-
-		var XML_ELEMENT_NODE = 1;
+	{	var XML_ELEMENT_NODE = 1;
 		var XML_TEXT_NODE = 3;
 		var XML_CDATA_SECTION_NODE = 4;
 		var XML_DOCUMENT_NODE = 9;
@@ -57,6 +55,11 @@ joyquery =
 				}
 				return true;
 			}
+		};
+		
+		var SETTINGS =
+		{	prefer_builtin: null,
+			compiler_cache_max: 4
 		};
 
 		function json_encode_string(value)
@@ -470,7 +473,7 @@ joyquery =
 			{	error();
 			}
 			//
-			if (compiler_cache.length >= COMPILER_CACHE_MAX)
+			if (compiler_cache.length >= SETTINGS.compiler_cache_max)
 			{	compiler_cache = {length: 0};
 			}
 			compiler_cache[css_for_cache] = path;
@@ -715,7 +718,7 @@ joyquery =
 			}
 		}
 
-		function evaluate(path_obj_or_str, node, functions, prefer_builtin)
+		function evaluate(path_obj_or_str, node, functions)
 		{	if (!functions)
 			{	functions = {};
 			}
@@ -731,7 +734,7 @@ joyquery =
 			var it = function(it_prefer_builtin, one_elem_enuogh)
 			{	if (i == -1)
 				{	var is_string = typeof(path_obj_or_str) != 'object';
-					if (is_string && (it_prefer_builtin || prefer_builtin) && prefer_builtin!==false)
+					if (is_string && (it_prefer_builtin || SETTINGS.prefer_builtin) && SETTINGS.prefer_builtin!==false)
 					{	builtin_result = try_builtin(node, path_obj_or_str, one_elem_enuogh);
 					}
 					if (!builtin_result)
@@ -781,6 +784,7 @@ joyquery =
 		}
 
 		evaluate.FUNCTIONS = FUNCTIONS;
+		evaluate.SETTINGS = SETTINGS;
 
 		return evaluate;
 	}
