@@ -202,7 +202,7 @@ joyquery =
 						var name_js = json_encode_string(name);
 						var get_attr = "n.getAttribute("+name_js+")";
 						var use_value = oper!='~=' ? value : ' '+value+' ';
-						var value_js = "(n["+name_js+"]?"+json_encode_string(use_value.toLowerCase())+":"+json_encode_string(use_value)+")";
+						var value_js = "("+name_js+"=='type'&&n["+name_js+"]?"+json_encode_string(use_value.toLowerCase())+":"+json_encode_string(use_value)+")";
 					}
 					var func;
 					var priority = 0;
@@ -515,7 +515,7 @@ joyquery =
 			};
 			var use_element_child = node && node.firstElementChild!==undefined;
 			if (!subnode)
-			{	subnode = axis==SELF || axis==ANCESTOR_OR_SELF ? node : axis==PARENT || axis==ANCESTOR ? node.parentNode : axis==CHILD ? node.firstChild : axis==FOLLOWING_SIBLING || axis==FIRST_FOLLOWING_SIBLING ? (use_element_child ? node.nextElementSibling : node.nextSibling) : axis==PRECEDING_SIBLING || axis==FIRST_PRECEDING_SIBLING ? (use_element_child ? node.previousElementSibling : node.previousSibling) : axis==DESCENDANT ? node : null;
+			{	subnode = axis==SELF || axis==ANCESTOR_OR_SELF ? node : axis==PARENT || axis==ANCESTOR ? node.parentNode : axis==CHILD ? (use_element_child ? node.firstElementChild : node.firstChild) : axis==FOLLOWING_SIBLING || axis==FIRST_FOLLOWING_SIBLING ? (use_element_child ? node.nextElementSibling : node.nextSibling) : axis==PRECEDING_SIBLING || axis==FIRST_PRECEDING_SIBLING ? (use_element_child ? node.previousElementSibling : node.previousSibling) : axis==DESCENDANT ? node : null;
 				position = axis==SELF || axis==DESCENDANT || axis==DESCENDANT_OR_SELF || axis==ANCESTOR_OR_SELF ? position : axis==CHILD ? 0 : axis==FOLLOWING_SIBLING || axis==FIRST_FOLLOWING_SIBLING ? position+1 : axis==PRECEDING_SIBLING || axis==FIRST_PRECEDING_SIBLING ? position-1 : NaN;
 				position_ot = axis==SELF || axis==DESCENDANT || axis==DESCENDANT_OR_SELF ? position_ot : axis==CHILD ? (name?0:NaN) : NaN;
 			}
