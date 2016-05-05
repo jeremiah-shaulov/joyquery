@@ -714,8 +714,7 @@ joyquery =
 		}
 
 		function try_builtin(node, query, one_elem)
-		{	<?php if (NewElemC::$NDEBUG): # suppress nervous exception in debugger?>
-			try
+		{	try
 			{	var result = one_elem ? node.querySelector(query) : node.querySelectorAll(query);
 				if (one_elem)
 				{	result = result ? [result] : [];
@@ -726,7 +725,6 @@ joyquery =
 			catch (e)
 			{
 			}
-			<?php endif?>
 		}
 
 		function evaluate(path_obj_or_str, node, functions)
