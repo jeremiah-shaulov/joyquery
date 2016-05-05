@@ -3,13 +3,13 @@
 
 joyquery =
 (	function()
-	{	var COMPILER_CACHE_MAX = 4;
-
-		var XML_ELEMENT_NODE = 1;
+	{	var XML_ELEMENT_NODE = 1;
 		var XML_TEXT_NODE = 3;
 		var XML_CDATA_SECTION_NODE = 4;
+		var XML_DOCUMENT_NODE = 9;
+		var XML_HTML_DOCUMENT_NODE = 13;
 
-		var TOKENIZER = /[~|^$*!]?=|::|([+\-]?\d+n(?:\s*[+\-]?\d+|\s*[+\-]\s+[+\-]?\d+)?)|((?:[\w_\-\x80-\xFF]|\\(?:[0-9A-Fa-f]{1,6}|.))+)|("[^"\\]*(?:\\[^"\\]*)*"|'[^'\\]*(?:\\[^'\\]*)*')|(\s+|\/\*[\S\s]*?\*\/)|./gi;
+		var TOKENIZER = /[~|^$*!]?=|::|([+\-]?\d+n(?:\s*[+\-]?\d+|\s*[+\-]\s+[+\-]?\d+)?)|((?:[\w_\-\x80-\xFF]|\\(?:[0-9A-Fa-f]{1,6}|.))+)|("[^"\\]*(?:\\[\S\s][^"\\]*)*"|'[^'\\]*(?:\\[\S\s][^'\\]*)*')|(\s+|\/\*[\S\s]*?\*\/)|./gi;
 		var COMPLEX_NUMBER_TOKENIZER = /^\s*([+\-])\s*([+\-]?\d+)$/;
 		var UNESCAPER = /\\(?:([0-9A-Fa-f]{1,6})|.)/g;
 
@@ -45,6 +45,11 @@ joyquery =
 			'first-preceding-sibling': FIRST_PRECEDING_SIBLING
 		};
 
+		var CMP_IN_LOWERCASE_ATTRS =
+		{	type: 1,
+			method: 1
+		};
+
 		var FUNCTIONS =
 		{	empty: function()
 			{	var node = this.node;
@@ -55,6 +60,11 @@ joyquery =
 				}
 				return true;
 			}
+		};
+
+		var SETTINGS =
+		{	prefer_builtin: null,
+			compiler_cache_max: 4
 		};
 
 		function json_encode_string(value)
@@ -91,9 +101,9 @@ joyquery =
 		// jQuery uses compiler cache. Why don't i?
 		var compiler_cache = {length: 0};
 
-		function compile(css, no_context_node, use_element_child, use_has_attribute)
+		function compile(css, no_context_node, use_element_child, use_has_attribute, is_xml)
 		{	// cache hit?
-			var css_for_cache = ((no_context_node ? 1 : 0) | (use_element_child ? 2 : 0) | (use_has_attribute ? 4 : 0)) + css;
+			var css_for_cache = ((no_context_node ? 1 : 0) | (use_element_child ? 2 : 0) | (use_has_attribute ? 4 : 0) | (is_xml ? 8 : 0)) + css;
 			if (compiler_cache[css_for_cache])
 			{	return compiler_cache[css_for_cache];
 			}
@@ -176,7 +186,7 @@ joyquery =
 					}
 				}
 				var simple_selector =
-				{	name: token=='*' ? '' : token.toUpperCase(),
+				{	name: token=='*' ? '' : is_xml ? token : token.toUpperCase(),
 					axis: axis,
 					from: 1,
 					limit: 0x7FFFFFFF,
@@ -201,8 +211,13 @@ joyquery =
 					{	name = name.toLowerCase();
 						var name_js = json_encode_string(name);
 						var get_attr = "n.getAttribute("+name_js+")";
+						value += '';
 						var use_value = oper!='~=' ? value : ' '+value+' ';
-						var value_js = "("+name_js+"=='type'&&n["+name_js+"]?"+json_encode_string(use_value.toLowerCase())+":"+json_encode_string(use_value)+")";
+						var value_js = json_encode_string(use_value);
+						if (CMP_IN_LOWERCASE_ATTRS[name])
+						{	get_attr = "(n["+name_js+"]?("+get_attr+"||'').toLowerCase():"+get_attr+")";
+							value_js = "(n["+name_js+"]?"+json_encode_string(use_value.toLowerCase())+":"+value_js+")";
+						}
 					}
 					var func;
 					var priority = 0;
@@ -328,6 +343,7 @@ joyquery =
 							var func_name = oper.substr(1).replace(/-/g, '_');
 							func_args.splice(0, 0, 'this');
 							func = '(this.functions.'+func_name+'||this.FUNCTIONS.'+func_name+').call('+func_args.join(',')+')';
+							priority = 1;
 						break;
 					}
 					conditions[priority].push(func);
@@ -466,7 +482,7 @@ joyquery =
 			{	error();
 			}
 			//
-			if (compiler_cache.length >= COMPILER_CACHE_MAX)
+			if (compiler_cache.length >= SETTINGS.compiler_cache_max)
 			{	compiler_cache = {length: 0};
 			}
 			compiler_cache[css_for_cache] = path;
@@ -711,7 +727,7 @@ joyquery =
 			}
 		}
 
-		function evaluate(path_obj_or_str, node, functions, prefer_builtin)
+		function evaluate(path_obj_or_str, node, functions)
 		{	if (!functions)
 			{	functions = {};
 			}
@@ -720,18 +736,19 @@ joyquery =
 			if (no_context_node)
 			{	node = document.documentElement || document.body;
 			}
-			var doc = node.ownerDocument || document;
+			var doc = node.nodeType==XML_DOCUMENT_NODE || node.nodeType==XML_HTML_DOCUMENT_NODE ? node : node.ownerDocument || document;
 			var win = doc.defaultView || doc.parentWindow || window;
 			var iter, builtin_result=null;
 			var i = -1;
 			var it = function(it_prefer_builtin, one_elem_enuogh)
 			{	if (i == -1)
 				{	var is_string = typeof(path_obj_or_str) != 'object';
-					if (is_string && (it_prefer_builtin || prefer_builtin) && prefer_builtin!==false)
+					if (is_string && (it_prefer_builtin || SETTINGS.prefer_builtin) && SETTINGS.prefer_builtin!==false)
 					{	builtin_result = try_builtin(node, path_obj_or_str, one_elem_enuogh);
 					}
 					if (!builtin_result)
-					{	path = is_string ? compile(path_obj_or_str, no_context_node, node.firstElementChild!==undefined, node.hasAttribute) : path_obj_or_str;
+					{	var is_xml = !doc.body || (doc.contentType || '').indexOf('/xml')!=-1;
+						path = is_string ? compile(path_obj_or_str, no_context_node, node.firstElementChild!==undefined, node.hasAttribute, is_xml) : path_obj_or_str;
 					}
 					path_obj_or_str = null;
 				}
@@ -776,6 +793,7 @@ joyquery =
 		}
 
 		evaluate.FUNCTIONS = FUNCTIONS;
+		evaluate.SETTINGS = SETTINGS;
 
 		return evaluate;
 	}
