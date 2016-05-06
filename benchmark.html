@@ -231,7 +231,7 @@
                 'Native:'+
                 '<pre><code>document.getElementById("tests").querySelectorAll('+selector_js+')</code></pre>'+
                 'Emulation:'+
-                '<pre><code>joyquery('+selector_js+', document.getElementById("tests"), null, false).get()</code></pre>'+
+                '<pre><code>joyquery('+selector_js+', document.getElementById("tests"), null, {emulate: true}).get()</code></pre>'+
                 'jQuery:'+
                 '<pre><code>jQuery('+selector_js+', document.getElementById("tests"))</code></pre>'
             );

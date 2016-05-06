@@ -38,35 +38,44 @@
 
 <h2>joyquery - API reference</h2>
 
-<p>The API consists of function joyquery(), iterator function returned by joyquery(), get() function, object joyquery.FUNCTIONS, and interface for user provided callback functions callable from selectors.</p>
+<p>The API consists of:</p>
+
+<ul>
+<li>function <a href="#joyquery">joyquery()</a></li>
+<li><a href="#iterator">iterator function</a> returned by joyquery()</li>
+<li><a href="#get">get() function</a></li>
+<li>object <a href="#joyquery-functions">joyquery.FUNCTIONS</a></li>
+<li><a href="#joyquery-functions">interface</a> for user provided callback functions callable from selectors</li>
+<li>and object <a href="#joyquery-settings">joyquery.SETTINGS</a></li>
+</ul>
 
 <h2><a name="joyquery"></a>joyquery()</h2>
 
-<pre><code>Iterator function joyquery(string selector, DOMElement context, Object functions, boolean prefer_builtin);
+<pre><code>Iterator function joyquery(string selector, DOMElement context, Object functions, Object override_settings);
 </code></pre>
 
 <ul>
 <li><strong>selector</strong> - The only mandatory argument. This is the selector to look up.</li>
 <li><strong>context</strong> - If provided, will operate only on this element and its descendants. If not provided, document.documentElement (the &lt;html&gt; tag) is used.</li>
-<li><strong>functions</strong> - Can be object containing functions, that can be called from the selector.</li>
-<li><strong>prefer_builtin</strong> - Can be provided to force using or not using built-in element.querySelector (or element.querySelectorAll) function, if possible (see below).</li>
+<li><strong>functions</strong> - object containing functions, callable from the selector, in addition to global <a href="#joyquery-functions">joyquery.FUNCTIONS</a>.</li>
+<li><strong>override_settings</strong> - settings that override those in global <a href="#joyquery-settings">joyquery.SETTINGS</a>.</li>
 </ul>
 
-<p>This function returns another function, which is iterator.</p>
+<p>The joyquery() function returns another function, which is iterator.</p>
 
 <h2><a name="iterator"></a>iterator()</h2>
 
 <pre><code>DOMElement function iterator();
 </code></pre>
 
-<p>Each call to the iterator function causes to search for next element. The found element will be returned, or if there is no more results, null is returned. Subsequent calls will do nothing.</p>
+<p>Each call to the iterator function causes to search for next element. The found element will be returned, or if there are no more results, null is returned. Subsequent calls will do nothing.</p>
 
 <pre><code>for (var elem, it=joyquery("a.cls"); elem=it();)
 {   console.log(elem);
 }
 </code></pre>
 
-<p>Also the iterator function has method get().</p>
+<p>The iterator function (it()) has method get().</p>
 
 <h2><a name="get"></a>get()</h2>
 
@@ -75,35 +84,38 @@ DOMElement function get(Number index); // [2]
 Array function get(index, count); // [3]
 </code></pre>
 
-<p>The [1]st form iterates over all results and returns the results as Array of DOMElement. Even if built-in querySelectorAll() was used, which returns non-array collection (in Chrome it is NodeList), get() returns Array object.</p>
+<p>The [1]st form iterates over all results and returns the results as Array of DOMElement. Even if built-in querySelectorAll() was used, which returns non-array collection (in Chrome it is NodeList), get() always returns Array object.</p>
+
+<p>Example:</p>
 
 <pre><code>var all_results = joyquery("a.cls").get();
 </code></pre>
 
 <p>The [2]nd form returns single result whoose number is provided. Can return null (or undefined).</p>
 
+<p>Example:</p>
+
 <pre><code>var elem = joyquery("a.cls").get(0);
 </code></pre>
 
 <p>The [3]rd form returns slice Array from the result set.</p>
+
+<p>Example:</p>
 
 <pre><code>var results = joyquery("a.cls").get(10, 3);
 </code></pre>
 
 <h2><a name="querySelector"></a>Conditions for built-in optimization</h2>
 
-<p>If browser is equiped with built-in element.querySelector and element.querySelectorAll methods, they will get a try to handle the supplied selector in certain cases.</p>
+<p>If browser is equiped with built-in element.querySelector and element.querySelectorAll functions, they will get a try to handle the supplied selector.</p>
 
 <pre><code>var all_results = joyquery("a.cls").get(); // querySelectorAll is tried
+var some_results = joyquery("a.cls").get(10, 3); // querySelectorAll is tried
 var elem = joyquery("a.cls").get(0); // querySelector is tried
 var results = joyquery("a.cls").get(0, 1); // querySelector is tried
 </code></pre>
 
-<p>In all the other cases, including iteration without calling get(), emulation is used, except if you explicitly specify 4th argument for joyquery() function, which is called "prefer_builtin".</p>
-
-<p>To force using querySelectorAll when otherwise emulation is to be used, specify prefer_builtin true. This will speed up search, but all the found elements will be stored in array and occupy memory.</p>
-
-<p>To force not using querySelector/querySelectorAll specify prefer_builtin equal to boolean false. This may be meaningful if you want to test performance of the joyquery emulation.</p>
+<p>Though there is option not to utilize built-in functions. See <a href="#emulate">joyquery.SETTINGS</a>.</p>
 
 <h2>Duplicate elements in result</h2>
 
@@ -175,6 +187,53 @@ var results = joyquery("a.cls").get(0, 1); // querySelector is tried
     }
 ).get();
 </code></pre>
+
+<h2><a name="joyquery-settings"></a>joyquery.SETTINGS</h2>
+
+<p>This global object contains settings that affect joyquery operation. There are 2 settings:</p>
+
+<ul>
+<li><a href="#compiler_cache_max">compiler_cache_max</a> - default value is 4</li>
+<li><a href="#emulate">emulate</a> - default value is false</li>
+</ul>
+
+<p><a name="compiler_cache_max"></a> <strong>compiler_cache_max</strong> specifies for how many selectors to store compiler result. Each time you call joyquery() with selectors that built-in document.querySelector() can't handle, joyquery() needs to parse the selector and convert it to internal commands. These commands are stored in compiler cache for further reuse. So next time joyquery() will not need to reparse the same selector, if you query it several times (maybe in loop).</p>
+
+<p>The default value 4 means there will be up to 4 compiler results stored in memory permanently.</p>
+
+<p>jQuery also has compiler cache.</p>
+
+<p>Example:</p>
+
+<pre><code>joyquery.SETTINGS.compiler_cache_max = 1;
+var subelems = joyquery('child::*', elem);
+</code></pre>
+
+<p>The joyquery() function also has 4th argument that overrides global settings during current call.</p>
+
+<p>Example:</p>
+
+<pre><code>var subelems = joyquery('child::*', elem, null, {compiler_cache_max: 1});
+</code></pre>
+
+<p><a name="emulate"></a><strong>emulate</strong> - if set to true, joyquery() will not try to utilize built-in document.querySelector() and document.querySelectorAll() functions.</p>
+
+<p>This is rarely needed. One of possible reasons is to avoid calling document.querySelector() for selectors where it will fail for sure.</p>
+
+<p>Another reason is to test joyquery emulation performance.</p>
+
+<p>Example:</p>
+
+<pre><code>joyquery.SETTINGS.emulate = true;
+var subelems = joyquery('child::*', elem);
+</code></pre>
+
+<p>Example:</p>
+
+<pre><code>var subelems = joyquery('child::*', elem, null, {emulate: true});
+</code></pre>
+
+<p>Though there can be one more theoretic reason. Utilization of built-in function means that all the results will be found at once and stored in array. You may not want this. For example in case that there are much more results than you are planning to iterate over. Or maybe if you are willing to modify DOM tree between the calls to iterator, and thus affecting the further search.</p>
 		</section>
 		<footer>
 			<p>This project is maintained by <a href="https://github.com/jeremiah-shaulov">jeremiah-shaulov</a></p>

@@ -379,7 +379,7 @@ var tests_runner =
 				try
 				{	var start = new Date().getTime();
 					for (var j=0; j<test_repeat_times; j++)
-					{	result_2 = joyquery(test_selectors[n_test_iter], tests_elem, null, false).get();
+					{	result_2 = joyquery(test_selectors[n_test_iter], tests_elem, null, {emulate: true}).get();
 					}
 					time_2 = new Date().getTime() - start;
 				}
