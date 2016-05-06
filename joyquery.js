@@ -45,11 +45,6 @@ joyquery =
 			'first-preceding-sibling': FIRST_PRECEDING_SIBLING
 		};
 
-		var CMP_IN_LOWERCASE_ATTRS =
-		{	type: 1,
-			method: 1
-		};
-
 		var FUNCTIONS =
 		{	empty: function()
 			{	var node = this.node;
@@ -62,10 +57,18 @@ joyquery =
 			}
 		};
 
-		var SETTINGS =
-		{	prefer_builtin: null,
-			compiler_cache_max: 4
+		var CMP_IN_LOWERCASE_ATTRS =
+		{	type: 1,
+			method: 1
 		};
+
+		var SETTINGS =
+		{	compiler_cache_max: 4,
+			emulate: false
+		};
+
+		// jQuery uses compiler cache. Why don't i?
+		var compiler_cache = {length: 0};
 
 		function json_encode_string(value)
 		{	if (window.JSON)
@@ -98,10 +101,7 @@ joyquery =
 			return i;
 		}
 
-		// jQuery uses compiler cache. Why don't i?
-		var compiler_cache = {length: 0};
-
-		function compile(css, no_context_node, use_element_child, use_has_attribute, is_xml)
+		function compile(css, compiler_cache_max, no_context_node, use_element_child, use_has_attribute, is_xml)
 		{	// cache hit?
 			var css_for_cache = ((no_context_node ? 1 : 0) | (use_element_child ? 2 : 0) | (use_has_attribute ? 4 : 0) | (is_xml ? 8 : 0)) + css;
 			if (compiler_cache[css_for_cache])
@@ -482,7 +482,7 @@ joyquery =
 			{	error();
 			}
 			//
-			if (compiler_cache.length >= SETTINGS.compiler_cache_max)
+			if (compiler_cache.length >= compiler_cache_max)
 			{	compiler_cache = {length: 0};
 			}
 			compiler_cache[css_for_cache] = path;
@@ -727,7 +727,7 @@ joyquery =
 			}
 		}
 
-		function evaluate(path_obj_or_str, node, functions)
+		function evaluate(path_obj_or_str, node, functions, override_settings)
 		{	if (!functions)
 			{	functions = {};
 			}
@@ -740,15 +740,15 @@ joyquery =
 			var win = doc.defaultView || doc.parentWindow || window;
 			var iter, builtin_result=null;
 			var i = -1;
-			var it = function(it_prefer_builtin, one_elem_enuogh)
+			var it = function(one_elem_enuogh)
 			{	if (i == -1)
 				{	var is_string = typeof(path_obj_or_str) != 'object';
-					if (is_string && (it_prefer_builtin || SETTINGS.prefer_builtin) && SETTINGS.prefer_builtin!==false)
+					if (is_string && !(override_settings && override_settings.emulate!=null ? override_settings.emulate : SETTINGS.emulate))
 					{	builtin_result = try_builtin(node, path_obj_or_str, one_elem_enuogh);
 					}
 					if (!builtin_result)
 					{	var is_xml = !doc.body || (doc.contentType || '').indexOf('/xml')!=-1;
-						path = is_string ? compile(path_obj_or_str, no_context_node, node.firstElementChild!==undefined, node.hasAttribute, is_xml) : path_obj_or_str;
+						path = is_string ? compile(path_obj_or_str, override_settings && override_settings.compiler_cache_max!=null ? override_settings.compiler_cache_max : SETTINGS.compiler_cache_max, no_context_node, node.firstElementChild!==undefined, node.hasAttribute, is_xml) : path_obj_or_str;
 					}
 					path_obj_or_str = null;
 				}
@@ -774,11 +774,10 @@ joyquery =
 			{	var want_scalar = at!=null && count==null;
 				count = at==null ? 0x7FFFFFFF : count>0 ? count-0 : 1;
 				at = at>0 ? at-0 : 0;
-				var it_prefer_builtin = at==0 && (count==1 || count==0x7FFFFFFF);
 				var one_elem_enuogh = at==0 && want_scalar;
 				var get_result = [];
 				var j = -at;
-				while (j<count && (elem=it(it_prefer_builtin, one_elem_enuogh)))
+				while (j<count && (elem=it(one_elem_enuogh)))
 				{	if (builtin_result || array_search(elem, get_result)==-1)
 					{	get_result[get_result.length] = elem;
 						j++;
