@@ -32,6 +32,13 @@
 			<div><a href="api-reference.html">API reference</a></div>
 			<div><a href="adding-extensions.html">Adding extensions</a></div>
 			<div><a href="benchmark.html">Benchmark</a></div>
+
+			<br>
+
+			<div>
+				See also:<br>
+				<a href="joyquery-for-php.html">Joyquery for PHP</a>
+			</div>
 		</header>
 		<section>
 			
@@ -156,7 +163,8 @@ var results = joyquery("a.cls").get(0, 1); // querySelector is tried
 <p>Extension function must return true if it considers the current element (this.node) to be matching.</p>
 
 <pre><code>var elements = joyquery
-(   "div &gt; p:contains-word-Hello", null,
+(   "div &gt; p:contains-word-Hello",
+    null,
     {   contains_word_Hello: function()
         {   return (this.node.textContent || this.node.innerText || '').indexOf('Hello') != -1;
         }
@@ -166,10 +174,25 @@ var results = joyquery("a.cls").get(0, 1); // querySelector is tried
 
 <p>Extension functions can recieve arguments. If a selector passed as argument (like in :has() or :not() functions), then the extension function will recieve object that has two methods: evaluate(node) and evaluate_one(node).</p>
 
-<p>This is implementation of :has(selector) handler:</p>
+<pre><code>var elements = joyquery
+(   "div &gt; p:contains-word('Hello')",
+    null,
+    {   contains_word: function(word)
+        {   return (this.node.textContent || this.node.innerText || '').indexOf(word) != -1;
+        }
+    }
+).get();
+</code></pre>
+
+<p>If a CSS-escaped string literal was passed as argument, the extension function will receive String object. If expression like 3n+1 was passed (e.g. :my-custom-nth-child(3n+1)), the function receives object with 2 fields: "imag" (3 in example) and "real" (1 in example).</p>
+
+<p>Functions like :has(), :not() and :any() expect to receive CSS selectors as arguments. If a selector passed as argument, then the extension function will recieve object that has two methods: evaluate(node) and evaluate_one(node).</p>
+
+<p>This is custom implementation of :has(selector) handler:</p>
 
 <pre><code>var elements = joyquery
-(   "div:my-custom-has(* p)", null,
+(   "div:my-custom-has(* p)",
+    null,
     {   my_custom_has: function(selector)
         {   return selector.evaluate(this.node).get(0);
         }
@@ -186,6 +209,14 @@ var results = joyquery("a.cls").get(0, 1); // querySelector is tried
         }
     }
 ).get();
+</code></pre>
+
+<p>Some functions like :lang(), expect to receive raw identifier, not quoted, e.g. :lang(br). In this case joyquery needs to know that this identifier is not a selector that selects tag name. To tell joyquery to interpret first argument as raw string, provide <code>func_name+'.raw_argument'</code> in the same object that contains the extension function (either functions or joyquery.FUNCTIONS). For example, this is how to do this for :lang() extension:</p>
+
+<pre><code>joyquery.FUNCTIONS['lang.raw_argument'] = true;
+joyquery.FUNCTIONS.lang = function(lang_name)
+{   // ...
+};
 </code></pre>
 
 <h2><a name="joyquery-settings"></a>joyquery.SETTINGS</h2>
