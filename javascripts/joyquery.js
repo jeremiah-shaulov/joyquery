@@ -491,23 +491,22 @@ joyquery =
 		}
 
 		// class Evaluator
-		{	function Evaluator(ctx, h)
-			{	this.ctx = ctx;
-				this.h = h;
-			}
-			Evaluator.prototype.evaluate = function(node)
-			{	return evaluate(this.ctx.s[this.h], node, this.ctx.functions);
-			};
-			Evaluator.prototype.evaluate_one = function(node)
-			{	var path = this.ctx.s[this.h];
-				for (var i=path.length-1; i>=0; i--)
-				{	var iter = select_matching(path[i], 0, node, null, this.ctx.functions, this.ctx.window, this.ctx.document, 0, NaN, NaN, NaN, NaN, [], [], [], [], 0, false);
-					if (iter)
-					{	return iter.result;
-					}
-				}
-			};
+		function Evaluator(ctx, h)
+		{	this.ctx = ctx;
+			this.h = h;
 		}
+		Evaluator.prototype.evaluate = function(node)
+		{	return evaluate(this.ctx.s[this.h], node, this.ctx.functions);
+		};
+		Evaluator.prototype.evaluate_one = function(node)
+		{	var path = this.ctx.s[this.h];
+			for (var i=path.length-1; i>=0; i--)
+			{	var iter = select_matching(path[i], 0, node, null, this.ctx.functions, this.ctx.window, this.ctx.document, 0, NaN, NaN, NaN, NaN, [], [], [], [], 0, false);
+				if (iter)
+				{	return iter.result;
+				}
+			}
+		};
 
 		function select_matching(cur_path, step, node, subnode, functions, win, doc, position_range, position, last, position_ot, last_ot, positions, lasts, position_ots, last_ots, n_positions, no_enter)
 		{	var simple_selector = cur_path[step];
@@ -777,6 +776,7 @@ joyquery =
 				var one_elem_enuogh = at==0 && want_scalar;
 				var get_result = [];
 				var j = -at;
+				var elem;
 				while (j<count && (elem=it(one_elem_enuogh)))
 				{	if (builtin_result || array_search(elem, get_result)==-1)
 					{	get_result[get_result.length] = elem;
